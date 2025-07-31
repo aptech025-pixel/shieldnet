@@ -53,18 +53,36 @@ export function AnomalyDetector() {
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true);
     setAnalysisResult(null);
+    const { dismiss, update } = toast({
+      title: "Analyzing Logs",
+      description: (
+        <div className="flex items-center">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <span>Please wait while we scan your network logs...</span>
+        </div>
+      ),
+    });
+
     try {
       const result = await analyzeNetworkLogsAction(data);
       setAnalysisResult(result);
+      update({
+        id: "toast",
+        title: "Analysis Complete!",
+        description: `Found ${result.anomalies.length} anomalies. Severity: ${result.severity}`,
+        variant: "default",
+      });
     } catch (error) {
       console.error("Analysis failed:", error);
-      toast({
+      update({
+        id: "toast",
         variant: "destructive",
         title: "Analysis Failed",
         description: "An error occurred while analyzing the network logs. Please try again.",
       });
     } finally {
       setIsLoading(false);
+      setTimeout(() => dismiss(), 5000);
     }
   };
   
