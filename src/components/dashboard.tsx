@@ -15,6 +15,7 @@ import {
   Server,
   BarChart,
   ShieldCheck,
+  Menu,
 } from 'lucide-react';
 import {
   ChartContainer,
@@ -30,6 +31,7 @@ import {
   Line,
   LineChart as RechartsLineChart,
 } from 'recharts';
+import { useSidebar } from '@/components/ui/sidebar';
 
 const trafficData = [
   { source: 'Internal', traffic: 4000 },
@@ -51,6 +53,7 @@ const threatsData = [
 ];
 
 export function Dashboard() {
+  const { toggleSidebar } = useSidebar();
   const trafficChartConfig = {
     traffic: {
       label: "Traffic",
@@ -67,7 +70,13 @@ export function Dashboard() {
   return (
     <main className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-background">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight font-headline">Dashboard</h2>
+        <div className="flex items-center gap-2">
+           <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleSidebar}>
+             <Menu />
+             <span className="sr-only">Toggle sidebar</span>
+           </Button>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Dashboard</h2>
+        </div>
         <div className="flex items-center space-x-2">
           <Button>
             <FileText className="mr-2 h-4 w-4" />
@@ -75,7 +84,7 @@ export function Dashboard() {
           </Button>
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">System Status</CardTitle>
@@ -118,7 +127,7 @@ export function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-7">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <div className="lg:col-span-4">
             <AnomalyDetector />
         </div>
@@ -136,8 +145,9 @@ export function Dashboard() {
                   tickMargin={10}
                   axisLine={false}
                   stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
                 />
-                <YAxis stroke="hsl(var(--muted-foreground))"/>
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12}/>
                 <ChartTooltip
                   cursor={false}
                   content={<ChartTooltipContent indicator="dot" />}
@@ -159,12 +169,12 @@ export function Dashboard() {
              <ChartContainer config={threatsChartConfig} className="h-[300px] w-full">
                <RechartsLineChart
                  data={threatsData}
-                 margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
+                 margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
                  accessibilityLayer
                >
                  <CartesianGrid strokeDasharray="3 3" />
-                 <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))"/>
-                 <YAxis stroke="hsl(var(--muted-foreground))"/>
+                 <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12}/>
+                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12}/>
                  <ChartTooltip content={<ChartTooltipContent />} />
                  <Line type="monotone" dataKey="threats" stroke="hsl(var(--primary))" strokeWidth={2} activeDot={{ r: 8 }} />
                </RechartsLineChart>
