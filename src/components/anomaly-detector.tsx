@@ -54,6 +54,7 @@ export function AnomalyDetector() {
     setIsLoading(true);
     setAnalysisResult(null);
     const { dismiss, update } = toast({
+      id: "analysis-toast",
       title: "Analyzing Logs",
       description: (
         <div className="flex items-center">
@@ -67,7 +68,7 @@ export function AnomalyDetector() {
       const result = await analyzeNetworkLogsAction(data);
       setAnalysisResult(result);
       update({
-        id: "toast",
+        id: "analysis-toast",
         title: "Analysis Complete!",
         description: `Found ${result.anomalies.length} anomalies. Severity: ${result.severity}`,
         variant: "default",
@@ -75,7 +76,7 @@ export function AnomalyDetector() {
     } catch (error) {
       console.error("Analysis failed:", error);
       update({
-        id: "toast",
+        id: "analysis-toast",
         variant: "destructive",
         title: "Analysis Failed",
         description: "An error occurred while analyzing the network logs. Please try again.",

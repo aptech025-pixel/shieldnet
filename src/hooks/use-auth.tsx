@@ -49,31 +49,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const isAuthPage = pathname === '/login' || pathname === '/signup';
-  if (isAuthPage) {
-    if (!user) {
-      return <>{children}</>;
-    }
-    // user is logged in, but on auth page, wait for redirect
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+  
+  if (!user && isAuthPage) {
+    return <>{children}</>;
   }
 
-  if (!isAuthPage) {
-    if (user) {
-      return <>{children}</>;
-    }
-    // user is not logged in, but on a protected page, wait for redirect
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+  if (user && !isAuthPage) {
+    return <>{children}</>;
   }
-
-  return null;
+  
+  return (
+    <div className="flex h-screen w-full items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin" />
+    </div>
+  );
 };
 
 export const useAuth = () => useContext(AuthContext);
