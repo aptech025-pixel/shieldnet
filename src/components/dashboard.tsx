@@ -69,7 +69,7 @@ export function Dashboard() {
 
   return (
     <main className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-background">
-      <div className="flex items-center justify-between space-y-2">
+      <div className="flex items-center justify-between space-y-2 flex-wrap">
         <div className="flex items-center gap-2">
            <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleSidebar}>
              <Menu />
@@ -128,7 +128,7 @@ export function Dashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-4 flex">
             <AnomalyDetector />
         </div>
         <Card className="lg:col-span-3">

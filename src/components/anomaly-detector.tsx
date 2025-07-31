@@ -88,7 +88,7 @@ export function AnomalyDetector() {
   };
   
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col w-full">
       <CardHeader>
         <CardTitle className="font-headline flex items-center gap-2">
           <Activity /> AI Anomaly Detection
@@ -133,7 +133,7 @@ export function AnomalyDetector() {
         <>
           <Separator />
           <CardContent className="pt-6 space-y-4">
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between items-start flex-wrap gap-2">
               <h3 className="text-lg font-semibold font-headline">Analysis Complete</h3>
               {analysisResult.severity &&
                 <SeverityBadge severity={analysisResult.severity} />
