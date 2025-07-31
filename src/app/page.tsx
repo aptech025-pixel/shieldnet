@@ -1,3 +1,4 @@
+"use client"
 import {
   SidebarProvider,
   Sidebar,
@@ -16,10 +17,29 @@ import {
   AlertTriangle,
   Settings,
   UserCircle,
+  LogOut,
 } from 'lucide-react';
 import { Dashboard } from '@/components/dashboard';
+import { useAuth } from '@/hooks/use-auth';
+import { auth } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+
 
 export default function Home() {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
+
+
   return (
     <SidebarProvider defaultOpen>
       <Sidebar>
@@ -59,12 +79,22 @@ export default function Home() {
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton tooltip={{content: "Profile"}}>
-                <UserCircle />
-                <span>Jane Doe</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+             {user && (
+              <>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip={{ content: "Profile" }}>
+                    <UserCircle />
+                    <span>{user.email}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={handleSignOut} tooltip={{ content: "Sign Out" }}>
+                    <LogOut />
+                    <span>Sign Out</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </>
+            )}
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
