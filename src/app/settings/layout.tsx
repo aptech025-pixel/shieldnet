@@ -1,6 +1,6 @@
+
 "use client"
 import {
-  SidebarProvider,
   Sidebar,
   SidebarHeader,
   SidebarContent,
@@ -19,15 +19,17 @@ import {
   UserCircle,
   LogOut,
 } from 'lucide-react';
-import { Dashboard } from '@/components/dashboard';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-
-export default function Home() {
+export default function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -41,9 +43,8 @@ export default function Home() {
     }
   };
 
-
   return (
-    <SidebarProvider defaultOpen>
+    <>
       <Sidebar>
         <SidebarHeader>
           <div className="flex items-center gap-2 p-2">
@@ -109,8 +110,8 @@ export default function Home() {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <Dashboard />
+        {children}
       </SidebarInset>
-    </SidebarProvider>
+    </>
   );
 }
