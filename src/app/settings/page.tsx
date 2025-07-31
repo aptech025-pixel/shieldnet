@@ -19,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, Menu } from "lucide-react";
 import { useSidebar } from '@/components/ui/sidebar';
@@ -173,15 +174,15 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="flex items-center justify-between space-x-2 p-4 rounded-md border">
-                    <FormLabel htmlFor="email-notifications">Email Notifications</FormLabel>
+                    <Label htmlFor="email-notifications">Email Notifications</Label>
                     <Switch id="email-notifications" defaultChecked />
                 </div>
                  <div className="flex items-center justify-between space-x-2 p-4 rounded-md border">
-                    <FormLabel htmlFor="push-notifications">Push Notifications</FormLabel>
+                    <Label htmlFor="push-notifications">Push Notifications</Label>
                     <Switch id="push-notifications" />
                 </div>
                  <div className="flex items-center justify-between space-x-2 p-4 rounded-md border">
-                    <FormLabel htmlFor="threat-alerts">High-Severity Threat Alerts</FormLabel>
+                    <Label htmlFor="threat-alerts">High-Severity Threat Alerts</Label>
                     <Switch id="threat-alerts" defaultChecked/>
                 </div>
             </CardContent>
