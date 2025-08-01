@@ -89,7 +89,13 @@ export default function ThreatsPage() {
     setIsLoadingAnalysis(true);
     setAnalysis(null);
     try {
-      const result = await explainThreatAction(threat);
+      const result = await explainThreatAction({
+          threat: threat.threat,
+          severity: threat.severity,
+          sourceIp: threat.sourceIp,
+          status: threat.status,
+          date: threat.date,
+      });
       setAnalysis(result);
     } catch (error) {
       console.error("Failed to get threat analysis:", error);
@@ -208,9 +214,9 @@ export default function ThreatsPage() {
                 </DialogDescription>
               </DialogHeader>
               <div className="py-4 space-y-2 text-sm">
-                  <p><strong>Source IP:</strong> <Badge variant="outline">{selectedThreat.sourceIp}</Badge></p>
-                  <p><strong>Status:</strong> {selectedThreat.status}</p>
-                  <p><strong>Detected on:</strong> {selectedThreat.date}</p>
+                  <div className="flex items-center gap-2"><strong>Source IP:</strong> <Badge variant="outline">{selectedThreat.sourceIp}</Badge></div>
+                  <div><strong>Status:</strong> {selectedThreat.status}</div>
+                  <div><strong>Detected on:</strong> {selectedThreat.date}</div>
               </div>
 
               {isLoadingAnalysis && <AnalysisSkeleton />}
