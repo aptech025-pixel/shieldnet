@@ -31,6 +31,7 @@ import { useSidebar } from '@/components/ui/sidebar';
 import { explainThreatAction } from '@/app/actions';
 import type { ExplainThreatOutput } from '@/ai/flows/explain-threat';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const threatsData = [
   { id: 1, threat: 'SQL Injection Attempt', severity: 'High', status: 'Blocked', date: '2023-11-01 14:30', sourceIp: '198.51.100.2' },
@@ -201,7 +202,7 @@ export default function ThreatsPage() {
       </main>
 
       <Dialog open={!!selectedThreat} onOpenChange={(isOpen) => !isOpen && setSelectedThreat(null)}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg grid-rows-[auto,minmax(0,1fr),auto] max-h-[90svh]">
           {selectedThreat && (
             <>
               <DialogHeader>
@@ -213,28 +214,30 @@ export default function ThreatsPage() {
                   AI-powered analysis and recommendations for: {selectedThreat.threat}
                 </DialogDescription>
               </DialogHeader>
-              <div className="py-4 space-y-2 text-sm">
-                  <div className="flex items-center gap-2"><strong>Source IP:</strong> <Badge variant="outline">{selectedThreat.sourceIp}</Badge></div>
-                  <div><strong>Status:</strong> {selectedThreat.status}</div>
-                  <div><strong>Detected on:</strong> {selectedThreat.date}</div>
-              </div>
-
-              {isLoadingAnalysis && <AnalysisSkeleton />}
-              
-              {analysis && (
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold flex items-center gap-2 mb-2"><Info /> AI Explanation</h4>
-                    <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{analysis.explanation}</div>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold flex items-center gap-2 mb-2"><ListChecks /> AI Recommendations</h4>
-                    <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                      {analysis.recommendations.map((rec, index) => <li key={index}>{rec}</li>)}
-                    </ul>
-                  </div>
+              <ScrollArea className="pr-6 -mr-6">
+                <div className="py-4 space-y-2 text-sm">
+                    <div className="flex items-center gap-2"><strong>Source IP:</strong> <Badge variant="outline">{selectedThreat.sourceIp}</Badge></div>
+                    <div><strong>Status:</strong> {selectedThreat.status}</div>
+                    <div><strong>Detected on:</strong> {selectedThreat.date}</div>
                 </div>
-              )}
+
+                {isLoadingAnalysis && <AnalysisSkeleton />}
+                
+                {analysis && (
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold flex items-center gap-2 mb-2"><Info /> AI Explanation</h4>
+                      <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{analysis.explanation}</div>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold flex items-center gap-2 mb-2"><ListChecks /> AI Recommendations</h4>
+                      <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground bg-muted p-3 rounded-md">
+                        {analysis.recommendations.map((rec, index) => <li key={index}>{rec}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </ScrollArea>
               
               <DialogFooter>
                 <Button onClick={() => setSelectedThreat(null)}>Close</Button>
