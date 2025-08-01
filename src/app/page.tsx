@@ -1,6 +1,6 @@
+
 "use client"
 import {
-  SidebarProvider,
   Sidebar,
   SidebarHeader,
   SidebarContent,
@@ -43,7 +43,7 @@ export default function Home() {
 
 
   return (
-    <SidebarProvider defaultOpen>
+    <>
       <Sidebar>
         <SidebarHeader>
           <div className="flex items-center gap-2 p-2">
@@ -97,20 +97,20 @@ export default function Home() {
                     <span>{user.email}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton onClick={handleSignOut} tooltip={{ content: "Sign Out" }}>
-                    <LogOut />
-                    <span>Sign Out</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
               </>
             )}
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleSignOut} tooltip={{ content: "Sign Out" }}>
+                <LogOut />
+                <span>Sign Out</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <Dashboard />
       </SidebarInset>
-    </SidebarProvider>
+    </>
   );
 }

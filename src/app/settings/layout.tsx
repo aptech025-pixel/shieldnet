@@ -98,14 +98,14 @@ export default function AppLayout({
                     <span>{user.email}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton onClick={handleSignOut} tooltip={{ content: "Sign Out" }}>
-                    <LogOut />
-                    <span>Sign Out</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
               </>
             )}
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleSignOut} tooltip={{ content: "Sign Out" }}>
+                <LogOut />
+                <span>Sign Out</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>

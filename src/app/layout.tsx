@@ -25,7 +25,7 @@ export default function RootLayout({
       </head>
       <body className={cn("font-body antialiased")}>
         <AuthProvider>
-          <SidebarProvider>
+          <SidebarProvider defaultOpen>
             {children}
           </SidebarProvider>
         </AuthProvider>
