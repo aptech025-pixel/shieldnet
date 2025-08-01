@@ -225,7 +225,7 @@ export default function ThreatsPage() {
                 <div className="space-y-4">
                   <div>
                     <h4 className="font-semibold flex items-center gap-2 mb-2"><Info /> AI Explanation</h4>
-                    <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{analysis.explanation}</p>
+                    <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{analysis.explanation}</div>
                   </div>
                   <div>
                     <h4 className="font-semibold flex items-center gap-2 mb-2"><ListChecks /> AI Recommendations</h4>
