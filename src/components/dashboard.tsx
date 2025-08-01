@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -127,8 +128,8 @@ export function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div className="lg:col-span-4 flex">
+      <div className="grid gap-4 lg:grid-cols-7">
+        <div className="lg:col-span-4">
             <AnomalyDetector />
         </div>
         <Card className="lg:col-span-3">

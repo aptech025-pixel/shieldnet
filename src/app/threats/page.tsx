@@ -134,71 +134,73 @@ export default function ThreatsPage() {
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Threats</h2>
           </div>
         </div>
-        <div className="bg-card p-4 rounded-lg shadow-sm">
-          <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
-            <div className="relative w-full md:flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search by threat or IP..."
-                className="pl-10 w-full"
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-              />
+        <Card className="shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
+              <div className="relative w-full md:flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Search by threat or IP..."
+                  className="pl-10 w-full"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-full md:w-auto">
+                    <ListFilter className="mr-2 h-4 w-4" />
+                    Filter by Severity
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuCheckboxItem
+                    checked={severityFilter.includes('High')}
+                    onCheckedChange={() => handleSeverityChange('High')}
+                  >
+                    High
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={severityFilter.includes('Medium')}
+                    onCheckedChange={() => handleSeverityChange('Medium')}
+                  >
+                    Medium
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={severityFilter.includes('Low')}
+                    onCheckedChange={() => handleSeverityChange('Low')}
+                  >
+                    Low
+                  </DropdownMenuCheckboxItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full md:w-auto">
-                  <ListFilter className="mr-2 h-4 w-4" />
-                  Filter by Severity
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuCheckboxItem
-                  checked={severityFilter.includes('High')}
-                  onCheckedChange={() => handleSeverityChange('High')}
-                >
-                  High
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={severityFilter.includes('Medium')}
-                  onCheckedChange={() => handleSeverityChange('Medium')}
-                >
-                  Medium
-                </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={severityFilter.includes('Low')}
-                  onCheckedChange={() => handleSeverityChange('Low')}
-                >
-                  Low
-                </DropdownMenuCheckboxItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Threat</TableHead>
-                  <TableHead>Severity</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Source IP</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredThreats.map(threat => (
-                  <TableRow key={threat.id} onClick={() => handleThreatSelect(threat)} className="cursor-pointer">
-                    <TableCell className="font-medium">{threat.threat}</TableCell>
-                    <TableCell><SeverityBadge severity={threat.severity} /></TableCell>
-                    <TableCell>{threat.status}</TableCell>
-                    <TableCell>{threat.date}</TableCell>
-                    <TableCell>{threat.sourceIp}</TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Threat</TableHead>
+                    <TableHead>Severity</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Source IP</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredThreats.map(threat => (
+                    <TableRow key={threat.id} onClick={() => handleThreatSelect(threat)} className="cursor-pointer">
+                      <TableCell className="font-medium">{threat.threat}</TableCell>
+                      <TableCell><SeverityBadge severity={threat.severity} /></TableCell>
+                      <TableCell>{threat.status}</TableCell>
+                      <TableCell>{threat.date}</TableCell>
+                      <TableCell>{threat.sourceIp}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </main>
 
       <Dialog open={!!selectedThreat} onOpenChange={(isOpen) => !isOpen && setSelectedThreat(null)}>

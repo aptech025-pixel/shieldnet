@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -88,7 +89,7 @@ export function AnomalyDetector() {
   };
   
   return (
-    <Card className="h-full flex flex-col w-full">
+    <Card className="flex flex-col w-full h-full">
       <CardHeader>
         <CardTitle className="font-headline flex items-center gap-2">
           <Activity /> AI Anomaly Detection
