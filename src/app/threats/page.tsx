@@ -15,11 +15,22 @@ import {
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Shield, CheckCircle, Search, ListFilter, Menu } from 'lucide-react';
+import { AlertTriangle, Shield, CheckCircle, Search, ListFilter, Menu, Loader2, Info, ListChecks } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
+import { explainThreatAction } from '@/app/actions';
+import type { ExplainThreatOutput } from '@/ai/flows/explain-threat';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const threatsData = [
   { id: 1, threat: 'SQL Injection Attempt', severity: 'High', status: 'Blocked', date: '2023-11-01 14:30', sourceIp: '198.51.100.2' },
@@ -31,6 +42,8 @@ const threatsData = [
   { id: 7, threat: 'Port Scan from External IP', severity: 'Low', status: 'Monitored', date: '2023-10-29 15:10', sourceIp: '198.51.100.14' },
   { id: 8, threat: 'Brute Force Attempt on SSH', severity: 'Medium', status: 'Blocked', date: '2023-10-29 02:55', sourceIp: '192.0.2.201' },
 ];
+
+type Threat = typeof threatsData[0];
 
 const SeverityBadge = ({ severity }: { severity: string }) => {
   const s = severity.toUpperCase();
@@ -49,6 +62,9 @@ const SeverityBadge = ({ severity }: { severity: string }) => {
 export default function ThreatsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [severityFilter, setSeverityFilter] = useState<string[]>(['High', 'Medium', 'Low']);
+  const [selectedThreat, setSelectedThreat] = useState<Threat | null>(null);
+  const [analysis, setAnalysis] = useState<ExplainThreatOutput | null>(null);
+  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
   const { toggleSidebar } = useSidebar();
 
   const filteredThreats = useMemo(() => {
@@ -68,83 +84,159 @@ export default function ThreatsPage() {
     );
   };
   
+  const handleThreatSelect = async (threat: Threat) => {
+    setSelectedThreat(threat);
+    setIsLoadingAnalysis(true);
+    setAnalysis(null);
+    try {
+      const result = await explainThreatAction(threat);
+      setAnalysis(result);
+    } catch (error) {
+      console.error("Failed to get threat analysis:", error);
+      // Optionally set an error state to show in the dialog
+    } finally {
+      setIsLoadingAnalysis(false);
+    }
+  };
+
+  const AnalysisSkeleton = () => (
+    <div className="space-y-4 pt-4">
+      <div className="space-y-2">
+        <Skeleton className="h-5 w-1/4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-4/5" />
+      </div>
+      <div className="space-y-2">
+        <Skeleton className="h-5 w-1/3" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+    </div>
+  );
 
   return (
-    <main className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-background">
-      <div className="flex items-center justify-between space-y-2 flex-wrap">
-        <div className="flex items-center gap-2">
-           <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleSidebar}>
-             <Menu />
-             <span className="sr-only">Toggle sidebar</span>
-           </Button>
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Threats</h2>
-        </div>
-      </div>
-      <div className="bg-card p-4 rounded-lg shadow-sm">
-        <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
-          <div className="relative w-full md:flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search by threat or IP..."
-              className="pl-10 w-full"
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-            />
+    <>
+      <main className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-background">
+        <div className="flex items-center justify-between space-y-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleSidebar}>
+              <Menu />
+              <span className="sr-only">Toggle sidebar</span>
+            </Button>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight font-headline">Threats</h2>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-full md:w-auto">
-                <ListFilter className="mr-2 h-4 w-4" />
-                Filter by Severity
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuCheckboxItem
-                checked={severityFilter.includes('High')}
-                onCheckedChange={() => handleSeverityChange('High')}
-              >
-                High
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={severityFilter.includes('Medium')}
-                onCheckedChange={() => handleSeverityChange('Medium')}
-              >
-                Medium
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={severityFilter.includes('Low')}
-                onCheckedChange={() => handleSeverityChange('Low')}
-              >
-                Low
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Threat</TableHead>
-                <TableHead>Severity</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Source IP</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredThreats.map(threat => (
-                <TableRow key={threat.id}>
-                  <TableCell className="font-medium">{threat.threat}</TableCell>
-                  <TableCell><SeverityBadge severity={threat.severity} /></TableCell>
-                  <TableCell>{threat.status}</TableCell>
-                  <TableCell>{threat.date}</TableCell>
-                  <TableCell>{threat.sourceIp}</TableCell>
+        <div className="bg-card p-4 rounded-lg shadow-sm">
+          <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
+            <div className="relative w-full md:flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search by threat or IP..."
+                className="pl-10 w-full"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full md:w-auto">
+                  <ListFilter className="mr-2 h-4 w-4" />
+                  Filter by Severity
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuCheckboxItem
+                  checked={severityFilter.includes('High')}
+                  onCheckedChange={() => handleSeverityChange('High')}
+                >
+                  High
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={severityFilter.includes('Medium')}
+                  onCheckedChange={() => handleSeverityChange('Medium')}
+                >
+                  Medium
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={severityFilter.includes('Low')}
+                  onCheckedChange={() => handleSeverityChange('Low')}
+                >
+                  Low
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Threat</TableHead>
+                  <TableHead>Severity</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Source IP</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredThreats.map(threat => (
+                  <TableRow key={threat.id} onClick={() => handleThreatSelect(threat)} className="cursor-pointer">
+                    <TableCell className="font-medium">{threat.threat}</TableCell>
+                    <TableCell><SeverityBadge severity={threat.severity} /></TableCell>
+                    <TableCell>{threat.status}</TableCell>
+                    <TableCell>{threat.date}</TableCell>
+                    <TableCell>{threat.sourceIp}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+
+      <Dialog open={!!selectedThreat} onOpenChange={(isOpen) => !isOpen && setSelectedThreat(null)}>
+        <DialogContent className="sm:max-w-lg">
+          {selectedThreat && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="font-headline flex items-center gap-2">
+                  Threat Details
+                  <SeverityBadge severity={selectedThreat.severity} />
+                </DialogTitle>
+                <DialogDescription>
+                  AI-powered analysis and recommendations for: {selectedThreat.threat}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4 space-y-2 text-sm">
+                  <p><strong>Source IP:</strong> <Badge variant="outline">{selectedThreat.sourceIp}</Badge></p>
+                  <p><strong>Status:</strong> {selectedThreat.status}</p>
+                  <p><strong>Detected on:</strong> {selectedThreat.date}</p>
+              </div>
+
+              {isLoadingAnalysis && <AnalysisSkeleton />}
+              
+              {analysis && (
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold flex items-center gap-2 mb-2"><Info /> AI Explanation</h4>
+                    <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{analysis.explanation}</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold flex items-center gap-2 mb-2"><ListChecks /> AI Recommendations</h4>
+                    <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground bg-muted p-3 rounded-md">
+                      {analysis.recommendations.map((rec, index) => <li key={index}>{rec}</li>)}
+                    </ul>
+                  </div>
+                </div>
+              )}
+              
+              <DialogFooter>
+                <Button onClick={() => setSelectedThreat(null)}>Close</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
