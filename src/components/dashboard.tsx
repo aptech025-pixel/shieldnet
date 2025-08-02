@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { AnomalyDetector } from '@/components/anomaly-detector';
 import { ServiceStatus } from '@/components/service-status';
+import { FirewallStatus } from '@/components/firewall-status';
 import {
   FileText,
   AlertTriangle,
@@ -116,6 +117,7 @@ export function Dashboard() {
             <AnomalyDetector />
         </div>
         <div className="space-y-4">
+            <FirewallStatus />
             <ServiceStatus />
         </div>
       </div>
