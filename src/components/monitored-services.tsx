@@ -67,7 +67,8 @@ const AnalysisSkeleton = () => (
 
 
 export function MonitoredServicesManager() {
-  const { services, addService, removeService } = useServices();
+  const { services, addService, removeService, loading } = useServices();
+  const [isAdding, setIsAdding] = useState(false);
   const { toast } = useToast();
   const [selectedService, setSelectedService] = useState<MonitoredService | null>(null);
   const [analysis, setAnalysis] = useState<AnalyzeWebsiteOutput | null>(null);
@@ -80,7 +81,7 @@ export function MonitoredServicesManager() {
     },
   });
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     if (services.some(service => service.url === data.url)) {
         toast({
             variant: "destructive",
@@ -89,9 +90,10 @@ export function MonitoredServicesManager() {
         });
         return;
     }
-    
-    addService(data.url);
+    setIsAdding(true);
+    await addService(data.url);
     form.reset();
+    setIsAdding(false);
   };
   
   const handleAnalyzeClick = async (service: MonitoredService) => {
@@ -135,24 +137,29 @@ export function MonitoredServicesManager() {
                   <FormControl>
                     <div className="relative">
                         <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="https://example.com" className="pl-10" {...field} />
+                        <Input placeholder="https://example.com" className="pl-10" {...field} disabled={isAdding} />
                     </div>
                   </FormControl>
                   <FormMessage className="pt-2" />
                 </FormItem>
               )}
             />
-            <Button type="submit" variant="outline">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add
+            <Button type="submit" variant="outline" disabled={isAdding}>
+              {isAdding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+              {isAdding ? 'Adding...' : 'Add'}
             </Button>
           </form>
         </Form>
         
         <div className="mt-6 space-y-3">
              <h4 className="text-sm font-medium text-muted-foreground">Currently Monitoring</h4>
+             {loading && (
+                <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+             )}
              <AnimatePresence>
-                {services.length > 0 ? services.map((service) => (
+                {!loading && services.length > 0 ? services.map((service) => (
                     <motion.div
                         key={service.id}
                         layout
@@ -175,10 +182,11 @@ export function MonitoredServicesManager() {
                             </Button>
                         </div>
                     </motion.div>
-                )) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">You are not monitoring any websites yet.</p>
-                )}
+                )) : null}
              </AnimatePresence>
+             {!loading && services.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">You are not monitoring any websites yet.</p>
+             )}
         </div>
       </CardContent>
     </Card>

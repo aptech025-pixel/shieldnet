@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle, AlertTriangle, XCircle, Globe, Settings, ExternalLink, PlusCircle } from "lucide-react";
+import { CheckCircle, AlertTriangle, XCircle, Globe, Settings, ExternalLink, PlusCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from './ui/button';
@@ -39,7 +39,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 export function ServiceStatus() {
-  const { services } = useServices();
+  const { services, loading } = useServices();
 
   return (
     <Card>
@@ -69,9 +69,14 @@ export function ServiceStatus() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
+        {loading && (
+          <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        )}
         <TooltipProvider>
             <AnimatePresence>
-            {services.length > 0 ? services.map((service) => (
+            {!loading && services.length > 0 ? services.map((service) => (
             <motion.div 
                 key={service.id}
                 layout
@@ -93,18 +98,19 @@ export function ServiceStatus() {
                 </Tooltip>
                 <StatusBadge status={service.status} />
             </motion.div>
-            )) : (
-                <div className="text-center py-4">
-                    <p className="text-sm text-muted-foreground mb-2">No websites are being monitored.</p>
-                    <Button asChild variant="outline" size="sm">
-                        <Link href="/settings">
-                            <PlusCircle className="mr-2 h-4 w-4" /> Add Websites
-                        </Link>
-                    </Button>
-                </div>
-            )}
+            )) : null}
             </AnimatePresence>
         </TooltipProvider>
+        {!loading && services.length === 0 && (
+          <div className="text-center py-4">
+              <p className="text-sm text-muted-foreground mb-2">No websites are being monitored.</p>
+              <Button asChild variant="outline" size="sm">
+                  <Link href="/settings">
+                      <PlusCircle className="mr-2 h-4 w-4" /> Add Websites
+                  </Link>
+              </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
