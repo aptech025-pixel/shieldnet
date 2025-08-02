@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AnomalyDetector } from '@/components/anomaly-detector';
+import { ServiceStatus } from '@/components/service-status';
 import {
   FileText,
   AlertTriangle,
@@ -29,8 +30,6 @@ import {
   YAxis,
   CartesianGrid,
   BarChart as RechartsBarChart,
-  Line,
-  LineChart as RechartsLineChart,
 } from 'recharts';
 import { useSidebar } from '@/components/ui/sidebar';
 
@@ -43,27 +42,11 @@ const trafficData = [
   { source: 'Other', traffic: 2390 },
 ];
 
-const threatsData = [
-  { day: 'Mon', threats: 2 },
-  { day: 'Tue', threats: 3 },
-  { day: 'Wed', threats: 1 },
-  { day: 'Thu', threats: 5 },
-  { day: 'Fri', threats: 4 },
-  { day: 'Sat', threats: 7 },
-  { day: 'Sun', threats: 3 },
-];
-
 export function Dashboard() {
   const { toggleSidebar } = useSidebar();
   const trafficChartConfig = {
     traffic: {
       label: "Traffic",
-      color: "hsl(var(--primary))",
-    },
-  };
-  const threatsChartConfig = {
-     threats: {
-      label: "Threats",
       color: "hsl(var(--primary))",
     },
   };
@@ -128,57 +111,37 @@ export function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-7">
-        <div className="lg:col-span-4">
+      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="xl:col-span-2">
             <AnomalyDetector />
         </div>
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="font-headline">Network Traffic by Source</CardTitle>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <ChartContainer config={trafficChartConfig} className="h-[350px] w-full">
-              <RechartsBarChart data={trafficData} accessibilityLayer>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="source"
-                  tickLine={false}
-                  tickMargin={10}
-                  axisLine={false}
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12}/>
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="dot" />}
-                />
-                <Bar dataKey="traffic" fill="hsl(var(--primary))" radius={4} />
-              </RechartsBarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+            <ServiceStatus />
+        </div>
       </div>
 
        <div className="grid gap-4 md:grid-cols-1">
          <Card>
            <CardHeader>
-             <CardTitle className="font-headline">Threats Detected This Week</CardTitle>
-             <CardDescription>A summary of security threats detected over the last 7 days.</CardDescription>
+             <CardTitle className="font-headline">Network Traffic by Source</CardTitle>
            </CardHeader>
            <CardContent className="pl-2">
-             <ChartContainer config={threatsChartConfig} className="h-[300px] w-full">
-               <RechartsLineChart
-                 data={threatsData}
-                 margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
+             <ChartContainer config={trafficChartConfig} className="h-[300px] w-full">
+               <RechartsBarChart
+                 data={trafficData}
+                 layout="vertical"
+                 margin={{ left: 10, right: 30 }}
                  accessibilityLayer
                >
-                 <CartesianGrid strokeDasharray="3 3" />
-                 <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12}/>
-                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12}/>
-                 <ChartTooltip content={<ChartTooltipContent />} />
-                 <Line type="monotone" dataKey="threats" stroke="hsl(var(--primary))" strokeWidth={2} activeDot={{ r: 8 }} />
-               </RechartsLineChart>
+                 <CartesianGrid horizontal={false} />
+                 <YAxis dataKey="source" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80} />
+                 <XAxis type="number" hide />
+                 <ChartTooltip
+                   cursor={false}
+                   content={<ChartTooltipContent indicator="dot" />}
+                 />
+                 <Bar dataKey="traffic" fill="hsl(var(--primary))" radius={4} barSize={20} />
+               </RechartsBarChart>
              </ChartContainer>
            </CardContent>
          </Card>
