@@ -1,0 +1,58 @@
+{
+  "appName": "ShieldNet",
+  "tagline": "An AI-powered cybersecurity suite for proactive network defense and IT management.",
+  "architecture": {
+    "frontend": "Next.js, React, TypeScript, ShadCN UI, Tailwind CSS",
+    "backend": "Firebase (Authentication, Firestore)",
+    "generativeAI": "Google AI with Genkit"
+  },
+  "keyFeatures": [
+    {
+      "feature": "Unified Dashboard",
+      "description": "Provides a real-time, at-a-glance overview of system security status, active threats, network traffic metrics, and the status of monitored external websites.",
+      "components": ["Dashboard", "ServiceStatus", "FirewallStatus"]
+    },
+    {
+      "feature": "AI Anomaly Detection",
+      "description": "Users can paste network logs, and the AI will analyze them to detect suspicious patterns, identify anomalies, and suggest mitigation actions.",
+      "aiFlow": "analyzeNetworkLogs"
+    },
+    {
+      "feature": "Interactive Threats Feed",
+      "description": "Displays a live list of detected threats. Clicking a threat triggers an AI flow to provide a clear, non-technical explanation and actionable recommendations.",
+      "aiFlow": "explainThreat"
+    },
+    {
+      "feature": "Visual Analytics",
+      "description": "Presents security data through interactive charts, allowing users to visualize threat trends over time, network traffic by protocol, and the geographic origin of attacks.",
+      "components": ["Threat Trends Chart", "Traffic Protocol Chart", "Attack Origins Chart"]
+    },
+    {
+      "feature": "AI Security Toolkit",
+      "description": "A suite of proactive tools to enhance user security.",
+      "subFeatures": [
+        {
+          "name": "Secure Password Generator",
+          "description": "Generates strong, random passwords and provides an instant AI analysis of their strength, explaining why they are secure.",
+          "aiFlow": "generatePassword"
+        }
+      ]
+    },
+    {
+      "feature": "Intelligent IT Support Ticketing",
+      "description": "Transforms user-submitted problem descriptions into structured support tickets. The AI automatically categorizes the issue, assigns a priority level, and provides initial troubleshooting steps.",
+      "aiFlow": "generateItReport"
+    },
+    {
+      "feature": "Natural Language Firewall Configuration",
+      "description": "Users describe security objectives in plain English (e.g., 'Block all social media sites'). The AI translates this into a formal set of secure firewall rules.",
+      "aiFlow": "generateFirewallRules"
+    },
+    {
+      "feature": "Persistent Website Monitoring",
+      "description": "Allows users to add and manage a list of external websites. The application tracks their status and runs on-demand AI security and performance analyses. Data is stored persistently in Firestore.",
+      "aiFlow": "analyzeWebsite",
+      "storage": "Firebase Firestore"
+    }
+  ]
+}
