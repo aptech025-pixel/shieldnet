@@ -10,9 +10,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Globe, PlusCircle, Trash2, Link as LinkIcon } from 'lucide-react';
+import { Globe, PlusCircle, Trash2, Link as LinkIcon, Search, Loader2, BarChart, Shield, ListChecks } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { analyzeWebsiteAction } from '@/app/actions';
+import type { AnalyzeWebsiteOutput } from '@/ai/flows/analyze-website';
+import { Badge } from './ui/badge';
+import { Skeleton } from './ui/skeleton';
+import { Separator } from './ui/separator';
+
 
 const formSchema = z.object({
   url: z.string().url({ message: "Please enter a valid URL." }),
@@ -31,10 +45,40 @@ const initialServices: MonitoredService[] = [
     { id: '3', url: 'https://apojtech.free.nf' },
 ];
 
+const AnalysisSkeleton = () => (
+    <div className="space-y-6 pt-4">
+      <div className="flex justify-around text-center">
+        <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-8 w-16 mx-auto" />
+        </div>
+         <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-8 w-16 mx-auto" />
+        </div>
+      </div>
+      <Separator />
+      <div className="space-y-2">
+        <Skeleton className="h-5 w-1/3" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-4/5" />
+      </div>
+      <div className="space-y-2">
+        <Skeleton className="h-5 w-1/3" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+      </div>
+    </div>
+  );
+
 
 export function MonitoredServicesManager() {
   const [services, setServices] = useState<MonitoredService[]>(initialServices);
   const { toast } = useToast();
+  const [selectedService, setSelectedService] = useState<MonitoredService | null>(null);
+  const [analysis, setAnalysis] = useState<AnalyzeWebsiteOutput | null>(null);
+  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -73,15 +117,35 @@ export function MonitoredServicesManager() {
         description: `${serviceToRemove?.url} is no longer being monitored.`,
     })
   };
+  
+  const handleAnalyzeClick = async (service: MonitoredService) => {
+    setSelectedService(service);
+    setIsLoadingAnalysis(true);
+    setAnalysis(null);
+    try {
+      const result = await analyzeWebsiteAction({ url: service.url });
+      setAnalysis(result);
+    } catch (error) {
+      console.error("Failed to get website analysis:", error);
+      toast({
+        variant: "destructive",
+        title: "Analysis Failed",
+        description: "Could not retrieve analysis for this website.",
+      });
+    } finally {
+      setIsLoadingAnalysis(false);
+    }
+  };
 
   return (
+    <>
     <Card>
       <CardHeader>
         <CardTitle className="font-headline flex items-center gap-2">
           <Globe /> Monitored Websites
         </CardTitle>
         <CardDescription>
-          Add or remove external websites you want to track on your dashboard.
+          Add websites to track on your dashboard and run on-demand security analysis.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -124,10 +188,16 @@ export function MonitoredServicesManager() {
                         <Link href={service.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline truncate pr-4">
                             {service.url.replace(/^https?:\/\//, '')}
                         </Link>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeService(service.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                            <span className="sr-only">Remove {service.url}</span>
-                        </Button>
+                        <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleAnalyzeClick(service)}>
+                                <Search className="h-4 w-4" />
+                                <span className="sr-only">Analyze {service.url}</span>
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeService(service.id)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <span className="sr-only">Remove {service.url}</span>
+                            </Button>
+                        </div>
                     </motion.div>
                 )) : (
                     <p className="text-sm text-muted-foreground text-center py-4">You are not monitoring any websites yet.</p>
@@ -136,5 +206,55 @@ export function MonitoredServicesManager() {
         </div>
       </CardContent>
     </Card>
+
+    <Dialog open={!!selectedService} onOpenChange={(isOpen) => !isOpen && setSelectedService(null)}>
+        <DialogContent className="sm:max-w-2xl">
+          {selectedService && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="font-headline flex items-center gap-2">
+                  AI Security Analysis
+                </DialogTitle>
+                <DialogDescription>
+                  Results for <span className="font-semibold text-primary">{selectedService.url}</span>
+                </DialogDescription>
+              </DialogHeader>
+              
+              {isLoadingAnalysis && <AnalysisSkeleton />}
+              
+              {analysis && (
+                <div className="space-y-6 pt-4">
+                    <div className="flex justify-around text-center p-4 bg-muted rounded-lg">
+                        <div>
+                            <h4 className="text-sm font-medium text-muted-foreground">Security Score</h4>
+                            <p className="text-3xl font-bold text-primary">{analysis.securityScore}/100</p>
+                        </div>
+                        <div>
+                            <h4 className="text-sm font-medium text-muted-foreground">Performance Grade</h4>
+                            <p className="text-3xl font-bold text-primary">{analysis.performanceGrade}</p>
+                        </div>
+                    </div>
+                    <Separator />
+                    <div className="space-y-2">
+                      <h4 className="font-semibold flex items-center gap-2"><Shield /> Vulnerability Summary</h4>
+                      <p className="text-sm text-muted-foreground">{analysis.vulnerabilitySummary}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold flex items-center gap-2 mb-2"><ListChecks /> AI Recommendations</h4>
+                      <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+                        {analysis.recommendations.map((rec, index) => <li key={index}>{rec}</li>)}
+                      </ul>
+                    </div>
+                </div>
+              )}
+              
+              <DialogFooter>
+                <Button onClick={() => setSelectedService(null)}>Close</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

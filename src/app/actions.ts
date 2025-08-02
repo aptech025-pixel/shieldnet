@@ -4,6 +4,7 @@ import { analyzeNetworkLogs, type AnalyzeNetworkLogsInput } from '@/ai/flows/ana
 import { explainThreat, type ExplainThreatInput, type ExplainThreatOutput } from '@/ai/flows/explain-threat';
 import { generateItReport, type GenerateItReportInput } from '@/ai/flows/generate-it-report';
 import { generateFirewallRules, type GenerateFirewallRulesInput, type GenerateFirewallRulesOutput } from '@/ai/flows/generate-firewall-rules';
+import { analyzeWebsite, type AnalyzeWebsiteInput, type AnalyzeWebsiteOutput, AnalyzeWebsiteInputSchema } from '@/ai/flows/analyze-website';
 import { z } from 'zod';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
@@ -51,5 +52,11 @@ const GenerateFirewallRulesInputSchema = z.object({
 export async function generateFirewallRulesAction(input: GenerateFirewallRulesInput): Promise<GenerateFirewallRulesOutput> {
   const parsedInput = GenerateFirewallRulesInputSchema.parse(input);
   const result = await generateFirewallRules(parsedInput);
+  return result;
+}
+
+export async function analyzeWebsiteAction(input: AnalyzeWebsiteInput): Promise<AnalyzeWebsiteOutput> {
+  const parsedInput = AnalyzeWebsiteInputSchema.parse(input);
+  const result = await analyzeWebsite(parsedInput);
   return result;
 }
