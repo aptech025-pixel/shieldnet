@@ -7,7 +7,7 @@ import { generateFirewallRules } from '@/ai/flows/generate-firewall-rules';
 import { analyzeWebsite } from '@/ai/flows/analyze-website';
 import { generatePassword } from '@/ai/flows/generate-password';
 import { z } from 'zod';
-import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput } from '@/ai/schemas';
+import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput } from '@/ai/schemas';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
   networkLogs: z.string(),
@@ -41,7 +41,7 @@ const GenerateItReportInputSchema = z.object({
     description: z.string().min(20, { message: 'Description must be at least 20 characters.' }),
 });
 
-export async function generateItReportAction(input: GenerateItReportInput) {
+export async function generateItReportAction(input: GenerateItReportInput): Promise<GenerateItReportOutput> {
   const parsedInput = GenerateItReportInputSchema.parse(input);
   const result = await generateItReport(parsedInput);
   return result;

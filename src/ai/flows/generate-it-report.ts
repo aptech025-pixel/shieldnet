@@ -23,22 +23,19 @@ export async function generateItReport(
           name: 'generateItReportPrompt',
           input: {schema: GenerateItReportInputSchema},
           output: {schema: GenerateItReportOutputSchema},
-          prompt: `You are an expert IT support assistant. Your task is to take a user-submitted IT issue and transform it into a well-structured and detailed support ticket.
+          prompt: `You are an expert IT support triage assistant. Your task is to take a user-submitted IT issue and transform it into a well-structured, actionable support ticket.
 
 The user, {{{name}}} ({{{email}}}), has submitted the following report:
 Subject: {{{subject}}}
 Description: {{{description}}}
 
-Based on this, please generate the following:
+Based on this information, please generate the following:
 1.  **generatedSubject**: A clear and concise subject line. Start it with "IT Support Ticket:".
-2.  **generatedBody**: A comprehensive report body. Structure it professionally. Include the user's original description and then add sections for "Potential Impact," "Affected System/Area," and "Initial Troubleshooting Steps Suggested" (if applicable). The body should be pre-formatted for an email. Include the user's name and email at the top of the body.
-
-Example Output Format:
-{
-  "generatedSubject": "IT Support Ticket: Unable to Access Analytics Dashboard",
-  "generatedBody": "User: John Doe\\nEmail: john.doe@example.com\\n\\nIssue Summary:\\nUser is unable to access the analytics dashboard and receives a 'permission denied' error.\\n\\nPotential Impact:\\nThis prevents the user from monitoring network traffic and threat analytics, potentially delaying response to security incidents.\\n\\nAffected System/Area:\\nAnalytics Dashboard (/analytics)\\n\\nDetails:\\n- User tried clearing their browser cache.\\n- The issue persists across different browsers (Chrome, Firefox)."
-}
-  `,
+2.  **category**: Classify the issue into one of the following categories: 'Hardware', 'Software', 'Network', 'Account', 'Other'.
+3.  **priority**: Assess the severity and potential business impact to assign a priority level: 'Low', 'Medium', 'High', or 'Critical'. A user being unable to work is 'High' or 'Critical'. A minor inconvenience is 'Low'.
+4.  **troubleshootingSteps**: Provide a list of 2-3 simple, actionable troubleshooting steps a non-technical user could attempt before an IT technician intervenes. These should be relevant to the described problem.
+5.  **generatedBody**: A comprehensive report body pre-formatted for an email or ticketing system. Include the user's name and email at the top, their original description, and the potential impact of the issue.
+`,
         });
       const {output} = await prompt(input);
       return output!;
