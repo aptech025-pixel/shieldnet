@@ -12,14 +12,18 @@ import { GenerateItReportInput, GenerateItReportInputSchema, GenerateItReportOut
 export async function generateItReport(
   input: GenerateItReportInput
 ): Promise<GenerateItReportOutput> {
-  return generateItReportFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'generateItReportPrompt',
-  input: {schema: GenerateItReportInputSchema},
-  output: {schema: GenerateItReportOutputSchema},
-  prompt: `You are an expert IT support assistant. Your task is to take a user-submitted IT issue and transform it into a well-structured and detailed support ticket.
+  const generateItReportFlow = ai.defineFlow(
+    {
+      name: 'generateItReportFlow',
+      inputSchema: GenerateItReportInputSchema,
+      outputSchema: GenerateItReportOutputSchema,
+    },
+    async input => {
+        const prompt = ai.definePrompt({
+          name: 'generateItReportPrompt',
+          input: {schema: GenerateItReportInputSchema},
+          output: {schema: GenerateItReportOutputSchema},
+          prompt: `You are an expert IT support assistant. Your task is to take a user-submitted IT issue and transform it into a well-structured and detailed support ticket.
 
 The user, {{{name}}} ({{{email}}}), has submitted the following report:
 Subject: {{{subject}}}
@@ -35,16 +39,10 @@ Example Output Format:
   "generatedBody": "User: John Doe\\nEmail: john.doe@example.com\\n\\nIssue Summary:\\nUser is unable to access the analytics dashboard and receives a 'permission denied' error.\\n\\nPotential Impact:\\nThis prevents the user from monitoring network traffic and threat analytics, potentially delaying response to security incidents.\\n\\nAffected System/Area:\\nAnalytics Dashboard (/analytics)\\n\\nDetails:\\n- User tried clearing their browser cache.\\n- The issue persists across different browsers (Chrome, Firefox)."
 }
   `,
-});
-
-const generateItReportFlow = ai.defineFlow(
-  {
-    name: 'generateItReportFlow',
-    inputSchema: GenerateItReportInputSchema,
-    outputSchema: GenerateItReportOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
+        });
+      const {output} = await prompt(input);
+      return output!;
+    }
+  );
+  return generateItReportFlow(input);
+}

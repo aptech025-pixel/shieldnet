@@ -13,14 +13,18 @@ import { ExplainThreatInput, ExplainThreatInputSchema, ExplainThreatOutput, Expl
 export async function explainThreat(
   input: ExplainThreatInput
 ): Promise<ExplainThreatOutput> {
-  return explainThreatFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'explainThreatPrompt',
-  input: {schema: ExplainThreatInputSchema},
-  output: {schema: ExplainThreatOutputSchema},
-  prompt: `You are a senior cybersecurity analyst. A security threat has been detected and you need to explain it to a non-technical user and provide clear, actionable recommendations.
+  const explainThreatFlow = ai.defineFlow(
+    {
+      name: 'explainThreatFlow',
+      inputSchema: ExplainThreatInputSchema,
+      outputSchema: ExplainThreatOutputSchema,
+    },
+    async input => {
+        const prompt = ai.definePrompt({
+          name: 'explainThreatPrompt',
+          input: {schema: ExplainThreatInputSchema},
+          output: {schema: ExplainThreatOutputSchema},
+          prompt: `You are a senior cybersecurity analyst. A security threat has been detected and you need to explain it to a non-technical user and provide clear, actionable recommendations.
 
   Threat Details:
   - Threat: {{{threat}}}
@@ -43,16 +47,10 @@ const prompt = ai.definePrompt({
     ]
   }
   `,
-});
-
-const explainThreatFlow = ai.defineFlow(
-  {
-    name: 'explainThreatFlow',
-    inputSchema: ExplainThreatInputSchema,
-    outputSchema: ExplainThreatOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
+        });
+      const {output} = await prompt(input);
+      return output!;
+    }
+  );
+  return explainThreatFlow(input);
+}

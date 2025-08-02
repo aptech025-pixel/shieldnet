@@ -13,14 +13,18 @@ import { AnalyzeWebsiteInput, AnalyzeWebsiteInputSchema, AnalyzeWebsiteOutput, A
 export async function analyzeWebsite(
   input: AnalyzeWebsiteInput
 ): Promise<AnalyzeWebsiteOutput> {
-  return analyzeWebsiteFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'analyzeWebsitePrompt',
-  input: {schema: AnalyzeWebsiteInputSchema},
-  output: {schema: AnalyzeWebsiteOutputSchema},
-  prompt: `You are a world-class cybersecurity and web performance analyst. Your task is to analyze the given website URL and provide a detailed security and performance report.
+    const analyzeWebsiteFlow = ai.defineFlow(
+      {
+        name: 'analyzeWebsiteFlow',
+        inputSchema: AnalyzeWebsiteInputSchema,
+        outputSchema: AnalyzeWebsiteOutputSchema,
+      },
+      async input => {
+        const prompt = ai.definePrompt({
+          name: 'analyzeWebsitePrompt',
+          input: {schema: AnalyzeWebsiteInputSchema},
+          output: {schema: AnalyzeWebsiteOutputSchema},
+          prompt: `You are a world-class cybersecurity and web performance analyst. Your task is to analyze the given website URL and provide a detailed security and performance report.
 
 Website URL: {{{url}}}
 
@@ -32,16 +36,10 @@ Based on this URL, please perform a simulated analysis and generate a report wit
 
 Do not state that your analysis is simulated. Present the findings as if you have actively analyzed the site. Be realistic in your assessment.
 `,
-});
-
-const analyzeWebsiteFlow = ai.defineFlow(
-  {
-    name: 'analyzeWebsiteFlow',
-    inputSchema: AnalyzeWebsiteInputSchema,
-    outputSchema: AnalyzeWebsiteOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
+        });
+        const {output} = await prompt(input);
+        return output!;
+      }
+    );
+  return analyzeWebsiteFlow(input);
+}

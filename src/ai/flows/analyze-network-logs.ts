@@ -12,14 +12,18 @@ import { AnalyzeNetworkLogsInput, AnalyzeNetworkLogsInputSchema, AnalyzeNetworkL
 export async function analyzeNetworkLogs(
   input: AnalyzeNetworkLogsInput
 ): Promise<AnalyzeNetworkLogsOutput> {
-  return analyzeNetworkLogsFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'analyzeNetworkLogsPrompt',
-  input: {schema: AnalyzeNetworkLogsInputSchema},
-  output: {schema: AnalyzeNetworkLogsOutputSchema},
-  prompt: `You are a network security expert analyzing network logs for anomalies.
+  const analyzeNetworkLogsFlow = ai.defineFlow(
+    {
+      name: 'analyzeNetworkLogsFlow',
+      inputSchema: AnalyzeNetworkLogsInputSchema,
+      outputSchema: AnalyzeNetworkLogsOutputSchema,
+    },
+    async input => {
+        const prompt = ai.definePrompt({
+            name: 'analyzeNetworkLogsPrompt',
+            input: {schema: AnalyzeNetworkLogsInputSchema},
+            output: {schema: AnalyzeNetworkLogsOutputSchema},
+            prompt: `You are a network security expert analyzing network logs for anomalies.
 
   Analyze the following network logs for any unusual patterns or potential security threats.
   Identify any anomalies, their severity, and suggest actions to mitigate them.
@@ -32,16 +36,11 @@ const prompt = ai.definePrompt({
   - severity: The overall severity of the detected anomalies (LOW, MEDIUM, HIGH).
   - suggestedActions: Suggested actions to mitigate the detected anomalies.
   `,
-});
+        });
 
-const analyzeNetworkLogsFlow = ai.defineFlow(
-  {
-    name: 'analyzeNetworkLogsFlow',
-    inputSchema: AnalyzeNetworkLogsInputSchema,
-    outputSchema: AnalyzeNetworkLogsOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
+      const {output} = await prompt(input);
+      return output!;
+    }
+  );
+  return analyzeNetworkLogsFlow(input);
+}
