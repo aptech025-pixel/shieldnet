@@ -18,6 +18,7 @@ import {
   Settings,
   UserCircle,
   LogOut,
+  LifeBuoy,
 } from 'lucide-react';
 import { Dashboard } from '@/components/dashboard';
 import { useAuth } from '@/hooks/use-auth';
@@ -82,6 +83,14 @@ export default function Home() {
                 <SidebarMenuButton isActive={pathname === '/settings'} tooltip={{content: "Settings"}}>
                   <Settings />
                   <span>Settings</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <Link href="/report" passHref>
+                <SidebarMenuButton isActive={pathname === '/report'} tooltip={{content: "IT Report"}}>
+                  <LifeBuoy />
+                  <span>IT Report</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>

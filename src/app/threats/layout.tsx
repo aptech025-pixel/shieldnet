@@ -18,6 +18,7 @@ import {
   Settings,
   UserCircle,
   LogOut,
+  LifeBuoy,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
@@ -83,6 +84,14 @@ export default function AppLayout({
                 <SidebarMenuButton isActive={pathname === '/settings'} tooltip={{content: "Settings"}}>
                   <Settings />
                   <span>Settings</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <Link href="/report" passHref>
+                <SidebarMenuButton isActive={pathname === '/report'} tooltip={{content: "IT Report"}}>
+                  <LifeBuoy />
+                  <span>IT Report</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
