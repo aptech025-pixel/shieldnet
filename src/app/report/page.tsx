@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,8 +11,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Menu } from 'lucide-react';
+import { Menu, Wand2, Loader2 } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
+import { generateItReportAction } from '@/app/actions';
 
 const reportFormSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -21,6 +23,7 @@ const reportFormSchema = z.object({
 });
 
 export default function ReportPage() {
+  const [isGenerating, setIsGenerating] = useState(false);
   const { toggleSidebar } = useSidebar();
   const { toast } = useToast();
 
@@ -34,19 +37,43 @@ export default function ReportPage() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof reportFormSchema>) => {
-    const mailtoLink = `mailto:ap.tech.025@gmail.com?subject=${encodeURIComponent(
-      `IT Report: ${values.subject}`
-    )}&body=${encodeURIComponent(
-      `Name: ${values.name}\nEmail: ${values.email}\n\nIssue Description:\n${values.description}`
-    )}`;
-    
-    window.location.href = mailtoLink;
-
+  const onSubmit = async (values: z.infer<typeof reportFormSchema>) => {
+    setIsGenerating(true);
     toast({
-      title: "Redirecting to Email Client",
-      description: "Please complete sending the report from your email application.",
+      title: 'Generating Report with AI',
+      description: (
+        <div className="flex items-center">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <span>Please wait while we draft your report...</span>
+        </div>
+      ),
     });
+
+    try {
+      const result = await generateItReportAction(values);
+      
+      const mailtoLink = `mailto:ap.tech.025@gmail.com?subject=${encodeURIComponent(
+        result.generatedSubject
+      )}&body=${encodeURIComponent(
+        result.generatedBody
+      )}`;
+      
+      window.location.href = mailtoLink;
+
+      toast({
+        title: "Redirecting to Email Client",
+        description: "Please complete sending the AI-generated report from your email application.",
+      });
+
+    } catch (error) {
+       toast({
+        variant: "destructive",
+        title: "Report Generation Failed",
+        description: "An error occurred while generating the report. Please try again.",
+      });
+    } finally {
+        setIsGenerating(false);
+    }
   };
 
   return (
@@ -64,7 +91,9 @@ export default function ReportPage() {
       <Card>
         <CardHeader>
           <CardTitle className="font-headline">Submit an IT Report</CardTitle>
-          <CardDescription>Experiencing an issue? Fill out the form below to notify our IT department.</CardDescription>
+          <CardDescription>
+            Experiencing an issue? Fill out the form below. Our AI will help structure your report to notify our IT department.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -77,7 +106,7 @@ export default function ReportPage() {
                     <FormItem>
                       <FormLabel>Your Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input placeholder="John Doe" {...field} disabled={isGenerating} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -90,7 +119,7 @@ export default function ReportPage() {
                     <FormItem>
                       <FormLabel>Email Address</FormLabel>
                       <FormControl>
-                        <Input placeholder="john.doe@example.com" {...field} />
+                        <Input placeholder="john.doe@example.com" {...field} disabled={isGenerating} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -104,7 +133,7 @@ export default function ReportPage() {
                   <FormItem>
                     <FormLabel>Subject</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Unable to access analytics dashboard" {...field} />
+                      <Input placeholder="e.g., Unable to access analytics dashboard" {...field} disabled={isGenerating} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -121,13 +150,21 @@ export default function ReportPage() {
                         placeholder="Describe the steps you took, what you expected to happen, and what actually happened. Include any error messages."
                         className="min-h-[150px]"
                         {...field}
+                        disabled={isGenerating}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit">Submit Report</Button>
+              <Button type="submit" disabled={isGenerating}>
+                 {isGenerating ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                    <Wand2 className="mr-2 h-4 w-4" />
+                )}
+                {isGenerating ? 'Generating Report...' : 'Generate & Send Report'}
+              </Button>
             </form>
           </Form>
         </CardContent>
