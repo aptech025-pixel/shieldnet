@@ -40,6 +40,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user, loading, pathname, router]);
 
+  const value = { user, loading };
+
   if (loading) {
      return (
       <div className="flex h-screen w-full items-center justify-center">
@@ -51,13 +53,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAuthPage = pathname === '/login' || pathname === '/signup';
   
   if (!user && isAuthPage) {
-    return <>{children}</>;
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
   }
 
   if (user && !isAuthPage) {
-    return <>{children}</>;
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
   }
   
+  // This part handles the transitional state where the user is either
+  // logged in on an auth page (and about to be redirected) or logged out
+  // on a protected page (and about to be redirected).
+  // Showing a loader here prevents a flash of incorrect content.
   return (
     <div className="flex h-screen w-full items-center justify-center">
       <Loader2 className="h-8 w-8 animate-spin" />
