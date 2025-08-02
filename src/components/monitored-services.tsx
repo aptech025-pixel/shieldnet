@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Globe, PlusCircle, Trash2, Link as LinkIcon, Search, Loader2, BarChart, Shield, ListChecks } from 'lucide-react';
+import { Globe, PlusCircle, Trash2, Link as LinkIcon, Search, Loader2, ListChecks, Shield } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -27,6 +27,8 @@ import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
 import { Separator } from './ui/separator';
 import { ScrollArea } from './ui/scroll-area';
+import { useServices } from '@/hooks/use-services';
+import type { MonitoredService } from '@/hooks/use-services';
 
 
 const formSchema = z.object({
@@ -35,16 +37,6 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-type MonitoredService = {
-  id: string;
-  url: string;
-};
-
-const initialServices: MonitoredService[] = [
-    { id: '1', url: 'https://mrfarm.free.nf' },
-    { id: '2', url: 'https://www.9jadevs.free.nf' },
-    { id: '3', url: 'https://apojtech.free.nf' },
-];
 
 const AnalysisSkeleton = () => (
     <div className="space-y-6 pt-4">
@@ -75,7 +67,7 @@ const AnalysisSkeleton = () => (
 
 
 export function MonitoredServicesManager() {
-  const [services, setServices] = useState<MonitoredService[]>(initialServices);
+  const { services, addService, removeService } = useServices();
   const { toast } = useToast();
   const [selectedService, setSelectedService] = useState<MonitoredService | null>(null);
   const [analysis, setAnalysis] = useState<AnalyzeWebsiteOutput | null>(null);
@@ -97,26 +89,9 @@ export function MonitoredServicesManager() {
         });
         return;
     }
-
-    const newService: MonitoredService = {
-      id: new Date().toISOString(),
-      url: data.url,
-    };
-    setServices(prev => [...prev, newService]);
+    
+    addService(data.url);
     form.reset();
-    toast({
-        title: "Website Added",
-        description: `${data.url} is now being monitored.`,
-    })
-  };
-
-  const removeService = (id: string) => {
-    const serviceToRemove = services.find(s => s.id === id);
-    setServices(prev => prev.filter(service => service.id !== id));
-     toast({
-        title: "Website Removed",
-        description: `${serviceToRemove?.url} is no longer being monitored.`,
-    })
   };
   
   const handleAnalyzeClick = async (service: MonitoredService) => {
@@ -217,7 +192,7 @@ export function MonitoredServicesManager() {
                   AI Security Analysis
                 </DialogTitle>
                 <DialogDescription>
-                  Results for <span className="font-semibold text-primary">{selectedService.url}</span>
+                  Results for <span className="font-semibold text-primary">{selectedService.url.replace(/^https?:\/\//, '')}</span>
                 </DialogDescription>
               </DialogHeader>
               

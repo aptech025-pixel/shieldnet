@@ -1,6 +1,6 @@
 
 "use client";
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -8,17 +8,7 @@ import { CheckCircle, AlertTriangle, XCircle, Globe, Settings, ExternalLink, Plu
 import Link from "next/link";
 import { AnimatePresence, motion } from 'framer-motion';
 import { Button } from './ui/button';
-
-// NOTE: In a real application, this state would be managed globally (e.g., via Context or Zustand)
-// and persisted, for example, in localStorage or a database.
-// For this prototype, we simulate it with a static list that can be managed on the settings page.
-const initialServices = [
-  { name: "mrfarm.free.nf", url: "https://mrfarm.free.nf", status: "Operational" },
-  { name: "9jadevs.free.nf", url: "https://www.9jadevs.free.nf", status: "Operational" },
-  { name: "apojtech.free.nf", url: "https://apojtech.free.nf", status: "Degraded Performance" },
-  { name: "internal.api", url: "#", status: "Offline", description: "Internal API service is currently unreachable." },
-];
-
+import { useServices } from '@/hooks/use-services';
 
 const StatusBadge = ({ status }: { status: string }) => {
   switch (status) {
@@ -49,9 +39,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 export function ServiceStatus() {
-    const [services, setServices] = useState(initialServices);
-    // In a real app, you would fetch this list from a global state or API.
-    // useEffect(() => { ... fetch logic ... }, []);
+  const { services } = useServices();
 
   return (
     <Card>
@@ -85,7 +73,7 @@ export function ServiceStatus() {
             <AnimatePresence>
             {services.length > 0 ? services.map((service) => (
             <motion.div 
-                key={service.name}
+                key={service.id}
                 layout
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -95,7 +83,7 @@ export function ServiceStatus() {
                 <Tooltip>
                     <TooltipTrigger asChild>
                          <Link href={service.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline flex items-center gap-2 truncate pr-4">
-                            <span className="truncate">{service.name}</span>
+                            <span className="truncate">{service.url.replace(/^https?:\/\//, '')}</span>
                             <ExternalLink className="h-3 w-3 text-muted-foreground shrink-0" />
                         </Link>
                     </TooltipTrigger>

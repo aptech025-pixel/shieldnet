@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import { AuthProvider } from '@/hooks/use-auth';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { ServicesProvider } from '@/hooks/use-services';
 
 export const metadata: Metadata = {
   title: 'ShieldNet',
@@ -25,9 +26,11 @@ export default function RootLayout({
       </head>
       <body className={cn("font-body antialiased")}>
         <AuthProvider>
-          <SidebarProvider defaultOpen>
-            {children}
-          </SidebarProvider>
+          <ServicesProvider>
+            <SidebarProvider defaultOpen>
+              {children}
+            </SidebarProvider>
+          </ServicesProvider>
         </AuthProvider>
         <Toaster />
       </body>
