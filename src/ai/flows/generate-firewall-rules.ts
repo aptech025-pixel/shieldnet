@@ -3,31 +3,10 @@
  * @fileOverview AI-powered firewall rule generation flow.
  *
  * - generateFirewallRules - Analyzes a user's security objective to generate firewall rules.
- * - GenerateFirewallRulesInput - The input type for the generateFirewallRules function.
- * - GenerateFirewallRulesOutput - The return type for the generateFirewallRules function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const GenerateFirewallRulesInputSchema = z.object({
-  objective: z.string().describe("The user's high-level security objective (e.g., 'Block all traffic from North Korea')."),
-});
-export type GenerateFirewallRulesInput = z.infer<typeof GenerateFirewallRulesInputSchema>;
-
-const FirewallRuleSchema = z.object({
-    action: z.string().describe("The action to take (e.g., 'DENY', 'ALLOW')."),
-    protocol: z.string().describe("The protocol (e.g., 'TCP', 'UDP', 'ANY')."),
-    source: z.string().describe("The source IP address or range (e.g., '192.168.1.0/24', 'ANY')."),
-    destination: z.string().describe("The destination IP address or range."),
-    port: z.string().describe("The port number or range (e.g., '443', '1024-65535')."),
-    description: z.string().describe("A human-readable description of what the rule does."),
-});
-
-const GenerateFirewallRulesOutputSchema = z.object({
-    rules: z.array(FirewallRuleSchema).describe("A list of generated firewall rules."),
-});
-export type GenerateFirewallRulesOutput = z.infer<typeof GenerateFirewallRulesOutputSchema>;
+import { GenerateFirewallRulesInput, GenerateFirewallRulesInputSchema, GenerateFirewallRulesOutput, GenerateFirewallRulesOutputSchema } from '@/ai/schemas';
 
 
 export async function generateFirewallRules(

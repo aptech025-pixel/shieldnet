@@ -1,11 +1,12 @@
 'use server';
 
-import { analyzeNetworkLogs, type AnalyzeNetworkLogsInput } from '@/ai/flows/analyze-network-logs';
-import { explainThreat, type ExplainThreatInput, type ExplainThreatOutput } from '@/ai/flows/explain-threat';
-import { generateItReport, type GenerateItReportInput } from '@/ai/flows/generate-it-report';
-import { generateFirewallRules, type GenerateFirewallRulesInput, type GenerateFirewallRulesOutput } from '@/ai/flows/generate-firewall-rules';
-import { analyzeWebsite, type AnalyzeWebsiteInput, type AnalyzeWebsiteOutput, AnalyzeWebsiteInputSchema } from '@/ai/flows/analyze-website';
+import { analyzeNetworkLogs } from '@/ai/flows/analyze-network-logs';
+import { explainThreat } from '@/ai/flows/explain-threat';
+import { generateItReport } from '@/ai/flows/generate-it-report';
+import { generateFirewallRules } from '@/ai/flows/generate-firewall-rules';
+import { analyzeWebsite } from '@/ai/flows/analyze-website';
 import { z } from 'zod';
+import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput } from '@/ai/schemas';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
   networkLogs: z.string(),
@@ -17,15 +18,15 @@ export async function analyzeNetworkLogsAction(input: AnalyzeNetworkLogsInput) {
   return result;
 }
 
-export async function explainThreatAction(input: ExplainThreatInput): Promise<ExplainThreatOutput> {
-    const ExplainThreatInputSchema = z.object({
+const ExplainThreatInputSchema = z.object({
     threat: z.string().describe('The name of the threat, e.g., "SQL Injection Attempt".'),
     severity: z.string().describe('The severity of the threat (High, Medium, or Low).'),
     sourceIp: z.string().describe('The source IP address of the threat.'),
     status: z.string().describe('The current status of the threat (e.g., Blocked, Mitigated).'),
     date: z.string().describe('The date and time the threat was detected.'),
-    });
+});
 
+export async function explainThreatAction(input: ExplainThreatInput): Promise<ExplainThreatOutput> {
   const parsedInput = ExplainThreatInputSchema.parse(input);
   const result = await explainThreat(parsedInput);
   return result;
@@ -54,6 +55,10 @@ export async function generateFirewallRulesAction(input: GenerateFirewallRulesIn
   const result = await generateFirewallRules(parsedInput);
   return result;
 }
+
+const AnalyzeWebsiteInputSchema = z.object({
+  url: z.string().url(),
+});
 
 export async function analyzeWebsiteAction(input: AnalyzeWebsiteInput): Promise<AnalyzeWebsiteOutput> {
   const parsedInput = AnalyzeWebsiteInputSchema.parse(input);

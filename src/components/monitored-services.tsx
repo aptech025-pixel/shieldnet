@@ -22,7 +22,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { analyzeWebsiteAction } from '@/app/actions';
-import type { AnalyzeWebsiteOutput } from '@/ai/flows/analyze-website';
+import type { AnalyzeWebsiteOutput } from '@/ai/schemas';
 import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
 import { Separator } from './ui/separator';

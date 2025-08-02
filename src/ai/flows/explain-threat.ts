@@ -4,31 +4,10 @@
  * @fileOverview AI-powered threat explanation flow.
  *
  * - explainThreat - Analyzes a threat to provide an explanation and recommendations.
- * - ExplainThreatInput - The input type for the explainThreat function.
- * - ExplainThreatOutput - The return type for the explainThreat function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const ExplainThreatInputSchema = z.object({
-  threat: z.string().describe('The name of the threat, e.g., "SQL Injection Attempt".'),
-  severity: z.string().describe('The severity of the threat (High, Medium, or Low).'),
-  sourceIp: z.string().describe('The source IP address of the threat.'),
-  status: z.string().describe('The current status of the threat (e.g., Blocked, Mitigated).'),
-  date: z.string().describe('The date and time the threat was detected.'),
-});
-export type ExplainThreatInput = z.infer<typeof ExplainThreatInputSchema>;
-
-const ExplainThreatOutputSchema = z.object({
-  explanation: z
-    .string()
-    .describe('A clear, human-readable explanation of what the threat is and its potential impact.'),
-  recommendations: z
-    .array(z.string())
-    .describe('A list of specific, actionable steps the user should take to mitigate the threat and improve security.'),
-});
-export type ExplainThreatOutput = z.infer<typeof ExplainThreatOutputSchema>;
+import { ExplainThreatInput, ExplainThreatInputSchema, ExplainThreatOutput, ExplainThreatOutputSchema } from '@/ai/schemas';
 
 
 export async function explainThreat(

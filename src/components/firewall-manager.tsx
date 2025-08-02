@@ -6,7 +6,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateFirewallRulesAction } from '@/app/actions';
-import type { GenerateFirewallRulesOutput } from '@/ai/flows/generate-firewall-rules';
+import type { GenerateFirewallRulesOutput } from '@/ai/schemas';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";

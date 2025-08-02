@@ -4,35 +4,11 @@
  * @fileOverview AI-powered website analysis flow.
  *
  * - analyzeWebsite - Analyzes a website URL for security and performance.
- * - AnalyzeWebsiteInput - The input type for the analyzeWebsite function.
- * - AnalyzeWebsiteOutput - The return type for the analyzeWebsite function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { AnalyzeWebsiteInput, AnalyzeWebsiteInputSchema, AnalyzeWebsiteOutput, AnalyzeWebsiteOutputSchema } from '@/ai/schemas';
 
-export const AnalyzeWebsiteInputSchema = z.object({
-  url: z.string().url().describe('The URL of the website to analyze.'),
-});
-export type AnalyzeWebsiteInput = z.infer<typeof AnalyzeWebsiteInputSchema>;
-
-export const AnalyzeWebsiteOutputSchema = z.object({
-  securityScore: z
-    .number()
-    .min(0)
-    .max(100)
-    .describe('An overall security score for the website, from 0 to 100.'),
-  vulnerabilitySummary: z
-    .string()
-    .describe('A brief summary of potential vulnerabilities found.'),
-  performanceGrade: z
-    .enum(['A', 'B', 'C', 'D', 'F'])
-    .describe('A performance grade (A-F) based on simulated speed and optimization checks.'),
-  recommendations: z
-    .array(z.string())
-    .describe('A list of actionable recommendations to improve security and performance.'),
-});
-export type AnalyzeWebsiteOutput = z.infer<typeof AnalyzeWebsiteOutputSchema>;
 
 export async function analyzeWebsite(
   input: AnalyzeWebsiteInput

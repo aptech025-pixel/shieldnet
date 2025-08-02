@@ -29,7 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Shield, CheckCircle, Search, ListFilter, Menu, Loader2, Info, ListChecks } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { explainThreatAction } from '@/app/actions';
-import type { ExplainThreatOutput } from '@/ai/flows/explain-threat';
+import type { ExplainThreatOutput } from '@/ai/schemas';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
