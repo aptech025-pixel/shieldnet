@@ -5,8 +5,9 @@ import { explainThreat } from '@/ai/flows/explain-threat';
 import { generateItReport } from '@/ai/flows/generate-it-report';
 import { generateFirewallRules } from '@/ai/flows/generate-firewall-rules';
 import { analyzeWebsite } from '@/ai/flows/analyze-website';
+import { generatePassword } from '@/ai/flows/generate-password';
 import { z } from 'zod';
-import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput } from '@/ai/schemas';
+import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput } from '@/ai/schemas';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
   networkLogs: z.string(),
@@ -64,4 +65,21 @@ export async function analyzeWebsiteAction(input: AnalyzeWebsiteInput): Promise<
   const parsedInput = AnalyzeWebsiteInputSchema.parse(input);
   const result = await analyzeWebsite(parsedInput);
   return result;
+}
+
+const GeneratePasswordInputSchema = z.object({
+  length: z.number().min(8).max(128),
+  useUppercase: z.boolean(),
+  useLowercase: z.boolean(),
+  useNumbers: z.boolean(),
+  useSymbols: z.boolean(),
+}).refine(data => data.useUppercase || data.useLowercase || data.useNumbers || data.useSymbols, {
+  message: "At least one character type must be selected.",
+  path: ["useUppercase"], 
+});
+
+export async function generatePasswordAction(input: GeneratePasswordInput): Promise<GeneratePasswordOutput> {
+    const parsedInput = GeneratePasswordInputSchema.parse(input);
+    const result = await generatePassword(parsedInput);
+    return result;
 }

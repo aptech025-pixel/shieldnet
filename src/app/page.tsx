@@ -19,6 +19,7 @@ import {
   UserCircle,
   LogOut,
   LifeBuoy,
+  Wrench,
 } from 'lucide-react';
 import { Dashboard } from '@/components/dashboard';
 import { useAuth } from '@/hooks/use-auth';
@@ -77,6 +78,14 @@ export default function Home() {
                   <span>Analytics</span>
                 </SidebarMenuButton>
                </Link>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <Link href="/toolkit" passHref>
+                <SidebarMenuButton isActive={pathname === '/toolkit'} tooltip={{content: "Toolkit"}}>
+                  <Wrench />
+                  <span>Toolkit</span>
+                </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <Link href="/settings" passHref>
