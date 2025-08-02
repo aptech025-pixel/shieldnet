@@ -15,6 +15,7 @@ import { Loader2, KeyRound, Sparkles, Clipboard, ClipboardCheck, CheckCircle } f
 import { Slider } from './ui/slider';
 import { Checkbox } from './ui/checkbox';
 import { Separator } from './ui/separator';
+import { Label } from './ui/label';
 
 const formSchema = z.object({
   length: z.number().min(8).max(128),
@@ -179,37 +180,37 @@ export function PasswordGenerator() {
             </Button>
           </CardFooter>
         </form>
-      </Form>
       
-      {generationResult && (
-        <>
-          <Separator />
-          <CardContent className="pt-6 space-y-4">
-            <div>
-              <FormLabel>Generated Password</FormLabel>
-              <div className="flex items-center gap-2 mt-2">
-                <input 
-                  readOnly 
-                  value={generationResult.password} 
-                  className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm font-code tracking-widest"
-                />
-                <Button variant="outline" size="icon" onClick={copyToClipboard}>
-                  {isCopied ? <ClipboardCheck className="h-4 w-4 text-green-500" /> : <Clipboard className="h-4 w-4" />}
-                  <span className="sr-only">Copy password</span>
-                </Button>
-              </div>
-            </div>
-             <div>
-                <FormLabel className="flex items-center gap-2">
-                    <CheckCircle className="text-green-500" /> AI Strength Analysis
-                </FormLabel>
-                <p className="text-sm text-muted-foreground mt-2 bg-muted p-3 rounded-md">
-                    {generationResult.strengthAnalysis}
-                </p>
-            </div>
-          </CardContent>
-        </>
-      )}
+        {generationResult && (
+            <>
+            <Separator className="my-4"/>
+            <CardContent className="space-y-4">
+                <div>
+                <Label>Generated Password</Label>
+                <div className="flex items-center gap-2 mt-2">
+                    <input 
+                    readOnly 
+                    value={generationResult.password} 
+                    className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm font-code tracking-widest"
+                    />
+                    <Button variant="outline" size="icon" onClick={copyToClipboard}>
+                    {isCopied ? <ClipboardCheck className="h-4 w-4 text-green-500" /> : <Clipboard className="h-4 w-4" />}
+                    <span className="sr-only">Copy password</span>
+                    </Button>
+                </div>
+                </div>
+                <div>
+                    <Label className="flex items-center gap-2">
+                        <CheckCircle className="text-green-500" /> AI Strength Analysis
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-2 bg-muted p-3 rounded-md">
+                        {generationResult.strengthAnalysis}
+                    </p>
+                </div>
+            </CardContent>
+            </>
+        )}
+      </Form>
     </Card>
   );
 }
