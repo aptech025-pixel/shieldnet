@@ -53,6 +53,11 @@ const attackOriginData = [
     { country: 'USA', attacks: 72, fill: 'hsl(var(--chart-3))' },
     { country: 'Brazil', attacks: 45, fill: 'hsl(var(--chart-4))' },
     { country: 'Nigeria', attacks: 31, fill: 'hsl(var(--chart-5))' },
+    { country: 'Germany', attacks: 25, fill: 'hsl(var(--chart-1))' },
+    { country: 'India', attacks: 19, fill: 'hsl(var(--chart-2))' },
+    { country: 'Iran', attacks: 15, fill: 'hsl(var(--chart-3))' },
+    { country: 'UK', attacks: 12, fill: 'hsl(var(--chart-4))' },
+    { country: 'Vietnam', attacks: 9, fill: 'hsl(var(--chart-5))' },
 ];
 
 
@@ -129,20 +134,20 @@ export default function AnalyticsPage() {
        <Card>
            <CardHeader>
              <CardTitle className="font-headline">Top Attack Origins</CardTitle>
-             <CardDescription>Top 5 countries by number of attacks this month.</CardDescription>
+             <CardDescription>Top 10 countries by number of attacks this month.</CardDescription>
            </CardHeader>
            <CardContent className="pl-2">
-             <ChartContainer config={{}} className="h-[300px] w-full">
+             <ChartContainer config={{}} className="h-[400px] w-full">
                <RechartsBarChart
                  data={attackOriginData}
                  layout="vertical"
-                 margin={{ left: 10 }}
+                 margin={{ left: 10, right: 30 }}
                >
                  <CartesianGrid horizontal={false} />
-                 <YAxis dataKey="country" type="category" tickLine={false} axisLine={false} tickMargin={10} />
+                 <YAxis dataKey="country" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80} />
                  <XAxis type="number" hide />
-                 <ChartTooltip content={<ChartTooltipContent />} />
-                 <Bar dataKey="attacks" radius={5}>
+                 <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                 <Bar dataKey="attacks" radius={5} barSize={20}>
                     {attackOriginData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
