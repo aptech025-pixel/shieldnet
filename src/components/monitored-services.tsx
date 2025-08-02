@@ -26,6 +26,7 @@ import type { AnalyzeWebsiteOutput } from '@/ai/schemas';
 import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
 import { Separator } from './ui/separator';
+import { ScrollArea } from './ui/scroll-area';
 
 
 const formSchema = z.object({
@@ -47,13 +48,13 @@ const initialServices: MonitoredService[] = [
 
 const AnalysisSkeleton = () => (
     <div className="space-y-6 pt-4">
-      <div className="flex justify-around text-center">
+      <div className="flex flex-col sm:flex-row justify-around text-center gap-4">
         <div className="space-y-2">
-            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-24 mx-auto" />
             <Skeleton className="h-8 w-16 mx-auto" />
         </div>
          <div className="space-y-2">
-            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-24 mx-auto" />
             <Skeleton className="h-8 w-16 mx-auto" />
         </div>
       </div>
@@ -208,7 +209,7 @@ export function MonitoredServicesManager() {
     </Card>
 
     <Dialog open={!!selectedService} onOpenChange={(isOpen) => !isOpen && setSelectedService(null)}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl grid-rows-[auto,minmax(0,1fr),auto] max-h-[90svh]">
           {selectedService && (
             <>
               <DialogHeader>
@@ -220,33 +221,37 @@ export function MonitoredServicesManager() {
                 </DialogDescription>
               </DialogHeader>
               
-              {isLoadingAnalysis && <AnalysisSkeleton />}
-              
-              {analysis && (
-                <div className="space-y-6 pt-4">
-                    <div className="flex justify-around text-center p-4 bg-muted rounded-lg">
-                        <div>
-                            <h4 className="text-sm font-medium text-muted-foreground">Security Score</h4>
-                            <p className="text-3xl font-bold text-primary">{analysis.securityScore}/100</p>
+              <ScrollArea className="pr-6 -mr-6">
+                <div className="py-4">
+                    {isLoadingAnalysis && <AnalysisSkeleton />}
+                    
+                    {analysis && (
+                        <div className="space-y-6">
+                            <div className="flex flex-col sm:flex-row justify-around text-center gap-4 p-4 bg-muted rounded-lg">
+                                <div>
+                                    <h4 className="text-sm font-medium text-muted-foreground">Security Score</h4>
+                                    <p className="text-3xl font-bold text-primary">{analysis.securityScore}/100</p>
+                                </div>
+                                <div className="mt-4 sm:mt-0">
+                                    <h4 className="text-sm font-medium text-muted-foreground">Performance Grade</h4>
+                                    <p className="text-3xl font-bold text-primary">{analysis.performanceGrade}</p>
+                                </div>
+                            </div>
+                            <Separator />
+                            <div className="space-y-2">
+                            <h4 className="font-semibold flex items-center gap-2"><Shield /> Vulnerability Summary</h4>
+                            <p className="text-sm text-muted-foreground">{analysis.vulnerabilitySummary}</p>
+                            </div>
+                            <div>
+                            <h4 className="font-semibold flex items-center gap-2 mb-2"><ListChecks /> AI Recommendations</h4>
+                            <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+                                {analysis.recommendations.map((rec, index) => <li key={index}>{rec}</li>)}
+                            </ul>
+                            </div>
                         </div>
-                        <div>
-                            <h4 className="text-sm font-medium text-muted-foreground">Performance Grade</h4>
-                            <p className="text-3xl font-bold text-primary">{analysis.performanceGrade}</p>
-                        </div>
-                    </div>
-                    <Separator />
-                    <div className="space-y-2">
-                      <h4 className="font-semibold flex items-center gap-2"><Shield /> Vulnerability Summary</h4>
-                      <p className="text-sm text-muted-foreground">{analysis.vulnerabilitySummary}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold flex items-center gap-2 mb-2"><ListChecks /> AI Recommendations</h4>
-                      <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
-                        {analysis.recommendations.map((rec, index) => <li key={index}>{rec}</li>)}
-                      </ul>
-                    </div>
+                    )}
                 </div>
-              )}
+              </ScrollArea>
               
               <DialogFooter>
                 <Button onClick={() => setSelectedService(null)}>Close</Button>
