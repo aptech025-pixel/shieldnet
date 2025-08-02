@@ -3,6 +3,7 @@
 import { analyzeNetworkLogs, type AnalyzeNetworkLogsInput } from '@/ai/flows/analyze-network-logs';
 import { explainThreat, type ExplainThreatInput, type ExplainThreatOutput } from '@/ai/flows/explain-threat';
 import { generateItReport, type GenerateItReportInput } from '@/ai/flows/generate-it-report';
+import { generateFirewallRules, type GenerateFirewallRulesInput, type GenerateFirewallRulesOutput } from '@/ai/flows/generate-firewall-rules';
 import { z } from 'zod';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
@@ -40,5 +41,15 @@ const GenerateItReportInputSchema = z.object({
 export async function generateItReportAction(input: GenerateItReportInput) {
   const parsedInput = GenerateItReportInputSchema.parse(input);
   const result = await generateItReport(parsedInput);
+  return result;
+}
+
+const GenerateFirewallRulesInputSchema = z.object({
+  objective: z.string().min(10, { message: 'Please describe your objective in at least 10 characters.' }),
+});
+
+export async function generateFirewallRulesAction(input: GenerateFirewallRulesInput): Promise<GenerateFirewallRulesOutput> {
+  const parsedInput = GenerateFirewallRulesInputSchema.parse(input);
+  const result = await generateFirewallRules(parsedInput);
   return result;
 }

@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, Menu } from "lucide-react";
 import { useSidebar } from '@/components/ui/sidebar';
+import { FirewallManager } from "@/components/firewall-manager";
 
 const profileFormSchema = z.object({
   username: z.string().min(3, { message: "Username must be at least 3 characters." }).max(30),
@@ -84,6 +85,7 @@ export default function SettingsPage() {
       </div>
       
       <div className="grid gap-6">
+        <FirewallManager />
         <Card>
           <CardHeader>
             <CardTitle className="font-headline">Profile</CardTitle>
