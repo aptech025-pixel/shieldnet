@@ -5,16 +5,15 @@ import { useState, createContext, useContext, type ReactNode, useEffect } from '
 import { useToast } from './use-toast';
 import { useAuth } from './use-auth';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
-import { Loader2 } from 'lucide-react';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, query, where, Timestamp } from 'firebase/firestore';
 
 export type MonitoredService = {
   id: string;
   url: string;
   userId: string;
-  // NOTE: Status is simulated for this prototype. In a real app, this would be fetched.
   status: "Operational" | "Degraded Performance" | "Offline";
   description?: string;
+  createdAt: Timestamp;
 };
 
 interface ServicesContextType {
@@ -42,6 +41,8 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
         querySnapshot.forEach((doc) => {
           servicesData.push({ id: doc.id, ...doc.data() } as MonitoredService);
         });
+        // Sort by creation date
+        servicesData.sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
         setServices(servicesData);
         setLoading(false);
       }, (error) => {
@@ -56,7 +57,6 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
 
       return () => unsubscribe();
     } else {
-      // No user, clear services and stop loading
       setServices([]);
       setLoading(false);
     }
@@ -64,58 +64,75 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
 
   const addService = async (url: string) => {
     if (!user) {
-        toast({ variant: "destructive", title: "Not Authenticated", description: "You must be logged in to add a service." });
-        return;
+      toast({ variant: "destructive", title: "Not Authenticated", description: "You must be logged in to add a service." });
+      return;
     }
 
-    // In a real app, you might fetch status here. We'll just simulate it.
     const statuses: MonitoredService['status'][] = ["Operational", "Degraded Performance", "Offline"];
     const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+    const newServiceId = doc(collection(db, 'monitoredServices')).id;
+    const newService: MonitoredService = {
+      id: newServiceId,
+      url,
+      userId: user.uid,
+      status: randomStatus,
+      createdAt: Timestamp.now(),
+    };
+
+    // Optimistic update
+    setServices(currentServices => [...currentServices, newService]);
 
     try {
-        await addDoc(collection(db, "monitoredServices"), {
-            url,
-            userId: user.uid,
-            status: randomStatus,
-            createdAt: new Date(),
-        });
+      await addDoc(collection(db, "monitoredServices"), {
+        url,
+        userId: user.uid,
+        status: randomStatus,
+        createdAt: newService.createdAt,
+      });
 
-        toast({
-            title: "Website Added",
-            description: `${url} is now being monitored.`,
-        });
+      toast({
+        title: "Website Added",
+        description: `${url} is now being monitored.`,
+      });
     } catch (error) {
-        console.error("Error adding service: ", error);
-        toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Could not add the website to be monitored.",
-        });
+      console.error("Error adding service: ", error);
+      // Revert optimistic update on failure
+      setServices(currentServices => currentServices.filter(s => s.id !== newServiceId));
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not add the website. Please try again.",
+      });
     }
   };
 
   const removeService = async (id: string) => {
     if (!user) {
-        toast({ variant: "destructive", title: "Not Authenticated", description: "You must be logged in to remove a service." });
-        return;
+      toast({ variant: "destructive", title: "Not Authenticated", description: "You must be logged in to remove a service." });
+      return;
     }
 
     const serviceToRemove = services.find(s => s.id === id);
+    if (!serviceToRemove) return;
+
+    // Optimistic update
+    setServices(currentServices => currentServices.filter(s => s.id !== id));
+
     try {
-        await deleteDoc(doc(db, "monitoredServices", id));
-        if (serviceToRemove) {
-            toast({
-                title: "Website Removed",
-                description: `${serviceToRemove.url} is no longer being monitored.`,
-            });
-        }
+      await deleteDoc(doc(db, "monitoredServices", id));
+      toast({
+        title: "Website Removed",
+        description: `${serviceToRemove.url} is no longer being monitored.`,
+      });
     } catch (error) {
-        console.error("Error removing service: ", error);
-        toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Could not remove the monitored website.",
-        });
+      console.error("Error removing service: ", error);
+      // Revert optimistic update on failure
+      setServices(currentServices => [...currentServices, serviceToRemove].sort((a,b) => a.createdAt.toMillis() - b.createdAt.toMillis()));
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not remove the monitored website.",
+      });
     }
   };
   
