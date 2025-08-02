@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle, AlertTriangle, XCircle, Globe, Settings, ExternalLink } from "lucide-react";
+import { CheckCircle, AlertTriangle, XCircle, Globe, Settings, ExternalLink, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { AnimatePresence, motion } from 'framer-motion';
+import { Button } from './ui/button';
 
 // NOTE: In a real application, this state would be managed globally (e.g., via Context or Zustand)
 // and persisted, for example, in localStorage or a database.
@@ -120,4 +121,3 @@ export function ServiceStatus() {
     </Card>
   );
 }
-
