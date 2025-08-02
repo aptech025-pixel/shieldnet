@@ -1,18 +1,23 @@
 
 "use client";
-
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle, AlertTriangle, XCircle, Globe } from "lucide-react";
+import { CheckCircle, AlertTriangle, XCircle, Globe, Settings, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { AnimatePresence, motion } from 'framer-motion';
 
-const services = [
+// NOTE: In a real application, this state would be managed globally (e.g., via Context or Zustand)
+// and persisted, for example, in localStorage or a database.
+// For this prototype, we simulate it with a static list that can be managed on the settings page.
+const initialServices = [
   { name: "mrfarm.free.nf", url: "https://mrfarm.free.nf", status: "Operational" },
   { name: "9jadevs.free.nf", url: "https://www.9jadevs.free.nf", status: "Operational" },
   { name: "apojtech.free.nf", url: "https://apojtech.free.nf", status: "Degraded Performance" },
   { name: "internal.api", url: "#", status: "Offline", description: "Internal API service is currently unreachable." },
 ];
+
 
 const StatusBadge = ({ status }: { status: string }) => {
   switch (status) {
@@ -43,37 +48,76 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 export function ServiceStatus() {
+    const [services, setServices] = useState(initialServices);
+    // In a real app, you would fetch this list from a global state or API.
+    // useEffect(() => { ... fetch logic ... }, []);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline flex items-center gap-2">
-            <Globe /> External Service Status
-        </CardTitle>
-        <CardDescription>
-          Monitoring the real-time status of critical external websites.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <TooltipProvider>
-            {services.map((service) => (
-            <div key={service.name} className="flex items-center justify-between rounded-lg border p-3">
-                <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between">
+            <CardTitle className="font-headline flex items-center gap-2">
+                <Globe /> External Service Status
+            </CardTitle>
+            <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                         <Link href={service.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline disabled:pointer-events-none">
-                            {service.name}
+                        <Button asChild variant="ghost" size="icon" className="h-8 w-8">
+                            <Link href="/settings">
+                                <Settings className="h-4 w-4" />
+                                <span className="sr-only">Manage Monitored Websites</span>
+                            </Link>
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Manage Monitored Websites</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
+        <CardDescription>
+          Real-time status of your critical external websites.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <TooltipProvider>
+            <AnimatePresence>
+            {services.length > 0 ? services.map((service) => (
+            <motion.div 
+                key={service.name}
+                layout
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -20, transition: { duration: 0.2 } }}
+                className="flex items-center justify-between rounded-lg border p-3"
+            >
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                         <Link href={service.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:underline flex items-center gap-2 truncate pr-4">
+                            <span className="truncate">{service.name}</span>
+                            <ExternalLink className="h-3 w-3 text-muted-foreground shrink-0" />
                         </Link>
                     </TooltipTrigger>
                     <TooltipContent>
                         <p>{service.description || `Visit ${service.url}`}</p>
                     </TooltipContent>
                 </Tooltip>
-                </div>
                 <StatusBadge status={service.status} />
-            </div>
-            ))}
+            </motion.div>
+            )) : (
+                <div className="text-center py-4">
+                    <p className="text-sm text-muted-foreground mb-2">No websites are being monitored.</p>
+                    <Button asChild variant="outline" size="sm">
+                        <Link href="/settings">
+                            <PlusCircle className="mr-2 h-4 w-4" /> Add Websites
+                        </Link>
+                    </Button>
+                </div>
+            )}
+            </AnimatePresence>
         </TooltipProvider>
       </CardContent>
     </Card>
   );
 }
+
