@@ -215,3 +215,20 @@ export const SummarizeSecurityArticleOutputSchema = z.object({
   recommendations: z.array(z.string()).describe('A list of specific, actionable steps a user or small business can take to mitigate this threat.')
 });
 export type SummarizeSecurityArticleOutput = z.infer<typeof SummarizeSecurityArticleOutputSchema>;
+
+// schemas for generate-phishing-campaign.ts
+export const GeneratePhishingCampaignInputSchema = z.object({
+  templateType: z.enum(['password-reset', 'document-shared', 'invoice-payment', 'hr-policy-update', 'new-device-login']).describe('The type of phishing template to use.'),
+  targetCount: z.number().int().min(1).describe('The total number of employees targeted in the simulation.'),
+  clickedCount: z.number().int().min(0).describe('The number of employees who clicked the simulated phishing link.'),
+});
+export type GeneratePhishingCampaignInput = z.infer<typeof GeneratePhishingCampaignInputSchema>;
+
+export const GeneratePhishingCampaignOutputSchema = z.object({
+  subject: z.string().describe('The AI-generated subject line for the phishing email.'),
+  body: z.string().describe('The AI-generated HTML body of the phishing email.'),
+  riskLevel: z.enum(['Low', 'Medium', 'High', 'Critical']).describe('The assessed risk level based on the click-through rate.'),
+  keyTakeaways: z.string().describe('A summary of the campaign results and findings.'),
+  recommendations: z.array(z.string()).describe('A list of actionable recommendations for follow-up training.'),
+});
+export type GeneratePhishingCampaignOutput = z.infer<typeof GeneratePhishingCampaignOutputSchema>;

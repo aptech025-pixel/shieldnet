@@ -13,3 +13,4 @@ import '@/ai/flows/analyze-email.ts';
 import '@/ai/flows/dark-web-scanner.ts';
 import '@/ai/flows/chat-assistant.ts';
 import '@/ai/flows/summarize-security-article.ts';
+import '@/ai/flows/generate-phishing-campaign.ts';

@@ -20,6 +20,7 @@ import {
   LifeBuoy,
   Wrench,
   Rss,
+  GraduationCap,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
@@ -104,6 +105,14 @@ export function AppLayout({
                   <span>Toolkit</span>
                 </SidebarMenuButton>
               </Link>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+                <Link href="/training" passHref>
+                    <SidebarMenuButton isActive={pathname === '/training'} tooltip={{content: "Training"}}>
+                        <GraduationCap />
+                        <span>Training</span>
+                    </SidebarMenuButton>
+                </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <Link href="/settings" passHref>

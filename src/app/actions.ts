@@ -11,10 +11,11 @@ import { analyzeEmail } from '@/ai/flows/analyze-email';
 import { darkWebScan } from '@/ai/flows/dark-web-scanner';
 import { chatAssistant } from '@/ai/flows/chat-assistant';
 import { summarizeSecurityArticle } from '@/ai/flows/summarize-security-article';
+import { generatePhishingCampaign } from '@/ai/flows/generate-phishing-campaign';
 import { getIpInfo as getIpInfoTool } from '@/ai/tools/get-ip-info';
 import { z } from 'zod';
-import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput, AnalyzeEmailInput, AnalyzeEmailOutput, DarkWebScanInput, DarkWebScanOutput, ChatAssistantInput, ChatAssistantOutput, SummarizeSecurityArticleInput, SummarizeSecurityArticleOutput } from '@/ai/schemas';
-import { ChatAssistantInputSchema, ChatMessageSchema, SummarizeSecurityArticleInputSchema } from '@/ai/schemas';
+import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput, AnalyzeEmailInput, AnalyzeEmailOutput, DarkWebScanInput, DarkWebScanOutput, ChatAssistantInput, ChatAssistantOutput, SummarizeSecurityArticleInput, SummarizeSecurityArticleOutput, GeneratePhishingCampaignInput, GeneratePhishingCampaignOutput } from '@/ai/schemas';
+import { ChatAssistantInputSchema, GeneratePhishingCampaignInputSchema, SummarizeSecurityArticleInputSchema } from '@/ai/schemas';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
   networkLogs: z.string(),
@@ -139,5 +140,12 @@ export async function chatAssistantAction(input: ChatAssistantInput): Promise<Ch
 export async function summarizeSecurityArticleAction(input: SummarizeSecurityArticleInput): Promise<SummarizeSecurityArticleOutput> {
     const parsedInput = SummarizeSecurityArticleInputSchema.parse(input);
     const result = await summarizeSecurityArticle(parsedInput);
+    return result;
+}
+
+
+export async function generatePhishingCampaignAction(input: GeneratePhishingCampaignInput): Promise<GeneratePhishingCampaignOutput> {
+    const parsedInput = GeneratePhishingCampaignInputSchema.parse(input);
+    const result = await generatePhishingCampaign(parsedInput);
     return result;
 }
