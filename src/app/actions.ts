@@ -13,6 +13,7 @@ import { chatAssistant } from '@/ai/flows/chat-assistant';
 import { getIpInfo as getIpInfoTool } from '@/ai/tools/get-ip-info';
 import { z } from 'zod';
 import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput, AnalyzeEmailInput, AnalyzeEmailOutput, DarkWebScanInput, DarkWebScanOutput, ChatAssistantInput, ChatAssistantOutput } from '@/ai/schemas';
+import { ChatMessageSchema } from '@/ai/schemas';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
   networkLogs: z.string(),
@@ -128,11 +129,7 @@ export async function getIpInfo(input: z.infer<typeof GetIpInfoInputSchema>) {
 
 
 const ChatAssistantInputSchema = z.object({
-    messages: z.array(z.object({
-        role: z.enum(['user', 'model']),
-        content: z.string(),
-    })),
-    userRequest: z.string(),
+  messages: z.array(ChatMessageSchema),
 });
 
 export async function chatAssistantAction(input: ChatAssistantInput): Promise<ChatAssistantOutput> {

@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -7,7 +8,15 @@
  */
 
 import {ai} from '@/ai/genkit';
-import { ChatAssistantInput, ChatAssistantInputSchema, ChatAssistantOutput, ChatAssistantOutputSchema } from '@/ai/schemas';
+import {z} from 'zod';
+import {
+  ChatAssistantInput,
+  ChatAssistantInputSchema,
+  ChatAssistantOutput,
+  ChatAssistantOutputSchema,
+  AnalyzeWebsiteOutputSchema,
+} from '@/ai/schemas';
+import {analyzeWebsite} from './analyze-website';
 
 const appDescription = `
 ShieldNet is an AI-powered cybersecurity suite for proactive network defense and IT management.
@@ -26,44 +35,66 @@ Key Features:
 - Persistent Website Monitoring: Tracks the status of user-added websites and runs on-demand AI security and performance analyses.
 `;
 
+const websiteAnalyzerTool = ai.defineTool(
+  {
+    name: 'analyzeWebsite',
+    description:
+      'Analyzes a given website URL for security and performance issues. Returns a detailed report.',
+    inputSchema: z.object({url: z.string().url()}),
+    outputSchema: AnalyzeWebsiteOutputSchema,
+  },
+  async input => {
+    return await analyzeWebsite(input);
+  }
+);
+
 export async function chatAssistant(
   input: ChatAssistantInput
 ): Promise<ChatAssistantOutput> {
-    const chatAssistantFlow = ai.defineFlow(
-      {
-        name: 'chatAssistantFlow',
-        inputSchema: ChatAssistantInputSchema,
-        outputSchema: ChatAssistantOutputSchema,
-      },
-      async (input) => {
-        const prompt = ai.definePrompt({
-          name: 'chatAssistantPrompt',
-          input: { schema: ChatAssistantInputSchema },
-          output: { schema: ChatAssistantOutputSchema },
-          system: `You are ShieldNet's friendly and helpful AI Assistant. Your goal is to assist users with questions about the ShieldNet application.
+  const chatAssistantFlow = ai.defineFlow(
+    {
+      name: 'chatAssistantFlow',
+      inputSchema: ChatAssistantInputSchema,
+      outputSchema: ChatAssistantOutputSchema,
+    },
+    async input => {
+      const prompt = ai.definePrompt({
+        name: 'chatAssistantPrompt',
+        tools: [websiteAnalyzerTool],
+        system: `You are ShieldNet's friendly and helpful AI Assistant. Your goal is to assist users with questions about the ShieldNet application and general cybersecurity topics.
           
-You are an expert on all of ShieldNet's features. Here is a detailed description of the application:
+You are an expert on all of ShieldNet's features and have up-to-date knowledge of global cybersecurity news and trends. Here is a detailed description of the application:
 """
 ${appDescription}
 """
 
 When responding to users:
 - Be concise, friendly, and professional.
-- Use the provided context to answer questions accurately.
-- If a user asks what you can do, give them a brief summary of the app's key features.
-- If a user's query is unrelated to ShieldNet or cybersecurity, politely decline to answer and steer the conversation back to the application's functionality. For example: "I am ShieldNet's AI assistant and can only help with questions about this application. How can I help you with your network security today?"
+- Use the provided context and your general knowledge to answer questions accurately.
+- If a user asks what you can do, give them a brief summary of the app's key features and mention you can also answer general cybersecurity questions.
+- **If a user provides a website URL or asks you to check a site, use the 'analyzeWebsite' tool to run a security and performance scan.** Do not ask for permission; just run the scan and present the results in a clear, summarized, and conversational way.
+- If a user's query is unrelated to ShieldNet or cybersecurity, politely decline to answer and steer the conversation back to the application's functionality. For example: "I am ShieldNet's AI assistant and can only help with questions about this application and cybersecurity. How can I help you with your network security today?"
 `,
-          prompt: `The user's latest request is:
-{{{userRequest}}}
-`,
-        });
+      });
 
-        // The current implementation is not using history, but it is available in the input.
-        // For a more advanced chatbot, you would pass the history to the model.
-        const {output} = await prompt(input);
-        return output!;
-      }
-    );
+      const llmResponse = await prompt.run({input});
 
-    return chatAssistantFlow(input);
+      // We are not performing any logic on the tool requests here, but this is where you could
+      // add logic to, for example, require user confirmation before running a tool.
+      const toolResponse = await ai.runTools({
+        requests: llmResponse.toolRequests,
+      });
+
+      const finalLlmResponse = await prompt.run({
+        input,
+        context: [llmResponse.context, toolResponse.context],
+      });
+
+      return {
+        message: finalLlmResponse.context,
+      };
+    }
+  );
+
+  return chatAssistantFlow(input);
 }

@@ -14,11 +14,37 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { MessageCircle, Send, Loader2, Sparkles, User, Shield } from "lucide-react";
-import type { ChatMessage } from '@/ai/schemas';
+import { MessageCircle, Send, Loader2, Sparkles, User, Shield, ListChecks } from "lucide-react";
+import type { ChatMessage, AnalyzeWebsiteOutput } from '@/ai/schemas';
 import { chatAssistantAction } from '@/app/actions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+
+
+const WebsiteAnalysisResult = ({ result }: { result: AnalyzeWebsiteOutput }) => (
+    <div className="p-3 rounded-lg bg-muted/50 border space-y-3 text-sm my-2">
+        <div className="flex justify-around text-center">
+            <div>
+                <p className="text-xs text-muted-foreground">Security Score</p>
+                <p className="text-xl font-bold">{result.securityScore}/100</p>
+            </div>
+             <div>
+                <p className="text-xs text-muted-foreground">Perf. Grade</p>
+                <p className="text-xl font-bold">{result.performanceGrade}</p>
+            </div>
+        </div>
+        <div>
+            <p className="font-semibold text-xs mb-1">Summary</p>
+            <p className="text-muted-foreground">{result.vulnerabilitySummary}</p>
+        </div>
+        <div>
+            <p className="font-semibold text-xs mb-1 flex items-center gap-1"><ListChecks className="w-3 h-3" /> Recommendations</p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                {result.recommendations.slice(0, 2).map((rec, i) => <li key={i}>{rec}</li>)}
+            </ul>
+        </div>
+    </div>
+);
 
 
 export function AiChatAssistant() {
@@ -33,7 +59,7 @@ export function AiChatAssistant() {
         if(isOpen && messages.length === 0) {
             // Add initial welcome message
             setMessages([
-                { role: 'model', content: 'Hello! I am the ShieldNet AI Assistant. How can I help you today? You can ask me about the app\'s features or general cybersecurity topics.' }
+                { role: 'model', content: [{ text: 'Hello! I am the ShieldNet AI Assistant. How can I help you today? You can ask me about the app\'s features or general cybersecurity topics.' }] }
             ]);
         }
     }, [isOpen, messages.length]);
@@ -49,18 +75,17 @@ export function AiChatAssistant() {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
 
-        const userMessage: ChatMessage = { role: 'user', content: input };
-        setMessages(prev => [...prev, userMessage]);
+        const userMessage: ChatMessage = { role: 'user', content: [{ text: input }] };
+        const newMessages: ChatMessage[] = [...messages, userMessage];
+        setMessages(newMessages);
         setInput('');
         setIsLoading(true);
 
         try {
             const result = await chatAssistantAction({
-                messages: [...messages, userMessage],
-                userRequest: input,
+                messages: newMessages
             });
-            const modelMessage: ChatMessage = { role: 'model', content: result.response };
-            setMessages(prev => [...prev, modelMessage]);
+            setMessages(prev => [...prev, result.message]);
         } catch (error) {
             toast({
                 variant: 'destructive',
@@ -126,7 +151,15 @@ export function AiChatAssistant() {
                                             ? "bg-primary text-primary-foreground" 
                                             : "bg-muted"
                                     )}>
-                                        {message.content}
+                                        {message.content.map((part, partIndex) => {
+                                            if (part.text) {
+                                                return <div key={partIndex}>{part.text}</div>;
+                                            }
+                                            if (part.toolResponse?.name === 'analyzeWebsite' && part.toolResponse.output) {
+                                                return <WebsiteAnalysisResult key={partIndex} result={part.toolResponse.output as AnalyzeWebsiteOutput} />;
+                                            }
+                                            return null;
+                                        })}
                                     </div>
                                      {message.role === 'user' && (
                                         <div className="flex-shrink-0 h-8 w-8 rounded-full bg-muted flex items-center justify-center">

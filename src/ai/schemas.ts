@@ -169,19 +169,33 @@ export const DarkWebScanOutputSchema = z.object({
 export type DarkWebScanOutput = z.infer<typeof DarkWebScanOutputSchema>;
 
 // schemas for chat-assistant.ts
-const ChatMessageSchema = z.object({
+const ToolRequestSchema = z.object({
+  name: z.string(),
+  input: z.any(),
+});
+
+const ToolResponseSchema = z.object({
+  name: z.string(),
+  output: AnalyzeWebsiteOutputSchema,
+});
+
+
+export const ChatMessageSchema = z.object({
     role: z.enum(['user', 'model']),
-    content: z.string(),
+    content: z.array(z.object({
+      text: z.string().optional(),
+      toolRequest: ToolRequestSchema.optional(),
+      toolResponse: ToolResponseSchema.optional(),
+    })),
 });
 export type ChatMessage = z.infer<typeof ChatMessageSchema>;
 
 export const ChatAssistantInputSchema = z.object({
   messages: z.array(ChatMessageSchema).describe("The history of the conversation."),
-  userRequest: z.string().describe("The user's most recent message."),
 });
 export type ChatAssistantInput = z.infer<typeof ChatAssistantInputSchema>;
 
 export const ChatAssistantOutputSchema = z.object({
-    response: z.string().describe("The AI assistant's response to the user."),
+    message: ChatMessageSchema,
 });
 export type ChatAssistantOutput = z.infer<typeof ChatAssistantOutputSchema>;
