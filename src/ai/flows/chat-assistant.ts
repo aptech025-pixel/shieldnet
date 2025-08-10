@@ -18,6 +18,7 @@ import {
   ChatMessageSchema,
 } from '@/ai/schemas';
 import {analyzeWebsite} from './analyze-website';
+import { content, part } from 'genkit';
 
 const appDescription = `
 ShieldNet is an AI-powered cybersecurity suite for proactive network defense and IT management.
@@ -76,30 +77,27 @@ When responding to users:
 - **If a user provides a website URL or asks you to check a site, you MUST use the 'analyzeWebsite' tool to run a security and performance scan.** Do not ask for permission; just run the scan and present the results in a clear, summarized, and conversational way.
 - If a user's query is unrelated to ShieldNet or cybersecurity, politely decline to answer and steer the conversation back to the application's functionality. For example: "I am ShieldNet's AI assistant and can only help with questions about this application and cybersecurity. How can I help you with your network security today?"
 `,
+        history: messages,
       });
 
-      const llmResponse = await prompt.run({input: messages});
-      
-      const hasToolRequest = llmResponse.toolRequests.length > 0;
+      const llmResponse = await prompt();
 
-      if (!hasToolRequest) {
-        return { message: llmResponse.context };
+      // Check for tool requests
+      const toolRequest = llmResponse.toolRequest();
+      if (toolRequest) {
+        const toolResponse = await ai.runTool(toolRequest);
+        const finalLlmResponse = await prompt({
+            history: [
+                ...messages,
+                llmResponse.context,
+                content({role: 'tool', content: [part(toolResponse.context)]})
+            ],
+        });
+        return { message: finalLlmResponse.context };
       }
-      
-      const toolResponse = await ai.runTools({
-          requests: llmResponse.toolRequests,
-      });
 
-      const finalLlmResponse = await prompt.run({
-          input: [
-            ...messages,
-            llmResponse.context,
-            ...toolResponse.map(r => r.context)
-          ],
-      });
-      
-      return { message: finalLlmResponse.context };
-
+      // If no tool request, return the model's message
+      return { message: llmResponse.context };
     }
   );
 
