@@ -193,7 +193,10 @@ export function AiChatAssistant() {
 
     useEffect(() => {
         if (messages.length > 0) {
-            playSound();
+            // Don't play sound for initial message
+            if (messages.length > 1) {
+                playSound();
+            }
         }
 
         // Scroll to the bottom when new messages are added

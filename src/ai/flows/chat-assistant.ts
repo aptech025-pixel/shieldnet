@@ -8,7 +8,6 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'zod';
 import {
   ChatAssistantInput,
   ChatAssistantInputSchema,
@@ -24,6 +23,7 @@ import {
   GeneratePasswordOutputSchema,
   GenerateFirewallRulesInputSchema,
   GenerateFirewallRulesOutputSchema,
+  ChatMessage,
 } from '@/ai/schemas';
 import {analyzeWebsite} from './analyze-website';
 import {analyzeEmail} from './analyze-email';
@@ -31,7 +31,7 @@ import {darkWebScan} from './dark-web-scanner';
 import {generatePassword} from './generate-password';
 import {generateFirewallRules} from './generate-firewall-rules';
 
-import {content, part} from 'genkit';
+import {content, Part} from 'genkit';
 
 const appDescription = `
 ShieldNet is an AI-powered cybersecurity suite for proactive network defense and IT management.
@@ -141,25 +141,23 @@ When responding to users:
 - **Do not ask for permission to use a tool; if the user's intent matches a tool, use it directly and present the results.**
 - If a user's query is unrelated to ShieldNet or cybersecurity, politely decline to answer and steer the conversation back to the application's functionality. For example: "I am ShieldNet's AI assistant and can only help with questions about this application and cybersecurity. How can I help you with your network security today?"
 `,
-        history: messages,
       });
 
-      let llmResponse = await prompt();
+      let llmResponse = await prompt({ history: messages });
 
-      while (llmResponse.toolRequest()) {
-        const toolRequest = llmResponse.toolRequest()!;
+      while (llmResponse.toolRequest) {
+        const toolRequest = llmResponse.toolRequest;
         const toolResponse = await ai.runTool(toolRequest);
         
-        llmResponse = await prompt({
-          history: [
+        const history: ChatMessage[] = [
             ...messages,
-            llmResponse.context,
-            content({role: 'tool', content: [part(toolResponse.context)]}),
-          ],
-        });
+            { role: 'model', content: llmResponse.content },
+            { role: 'tool', content: [{ toolResponse: { name: toolRequest.name, output: toolResponse.output } }] },
+        ];
+        
+        llmResponse = await prompt({ history });
       }
       
-      // If no tool request, return the model's message
       return { message: llmResponse.context };
     }
   );
