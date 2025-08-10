@@ -6,6 +6,7 @@ import { useSidebar } from '@/components/ui/sidebar';
 import { Menu } from 'lucide-react';
 import { PasswordGenerator } from '@/components/password-generator';
 import { EmailAnalyzer } from '@/components/email-analyzer';
+import { DarkWebScanner } from '@/components/dark-web-scanner';
 
 export default function ToolkitPage() {
   const { toggleSidebar } = useSidebar();
@@ -25,6 +26,7 @@ export default function ToolkitPage() {
         <div className="grid gap-6 lg:grid-cols-1">
             <PasswordGenerator />
             <EmailAnalyzer />
+            <DarkWebScanner />
         </div>
     </main>
   );

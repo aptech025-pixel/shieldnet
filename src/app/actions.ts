@@ -8,9 +8,10 @@ import { analyzeWebsite } from '@/ai/flows/analyze-website';
 import { generatePassword } from '@/ai/flows/generate-password';
 import { getTopAttackOrigins } from '@/ai/flows/get-top-attack-origins';
 import { analyzeEmail } from '@/ai/flows/analyze-email';
+import { darkWebScan } from '@/ai/flows/dark-web-scanner';
 import { getIpInfo as getIpInfoTool } from '@/ai/tools/get-ip-info';
 import { z } from 'zod';
-import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput, AnalyzeEmailInput, AnalyzeEmailOutput } from '@/ai/schemas';
+import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput, AnalyzeEmailInput, AnalyzeEmailOutput, DarkWebScanInput, DarkWebScanOutput } from '@/ai/schemas';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
   networkLogs: z.string(),
@@ -101,6 +102,17 @@ export async function analyzeEmailAction(input: AnalyzeEmailInput): Promise<Anal
     const result = await analyzeEmail(parsedInput);
     return result;
 }
+
+const DarkWebScanInputSchema = z.object({
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+});
+
+export async function darkWebScanAction(input: DarkWebScanInput): Promise<DarkWebScanOutput> {
+    const parsedInput = DarkWebScanInputSchema.parse(input);
+    const result = await darkWebScan(parsedInput);
+    return result;
+}
+
 
 const GetIpInfoInputSchema = z.object({
   ip: z.string().ip(),

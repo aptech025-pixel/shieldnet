@@ -77,7 +77,7 @@ export type GenerateFirewallRulesInput = z.infer<typeof GenerateFirewallRulesInp
 
 const FirewallRuleSchema = z.object({
     action: z.string().describe("The action to take (e.g., 'DENY', 'ALLOW')."),
-    protocol: z.string().describe("The protocol (e.g., 'TCP', 'UDP', 'ANY')."),
+    protocol: z.string().describe("The protocol (e.g., 'TCP', 'UDP', 'ICMP', 'ANY')."),
     source: z.string().describe("The source IP address or range (e.g., '192.168.1.0/24', 'ANY')."),
     destination: z.string().describe("The destination IP address or range."),
     port: z.string().describe("The port number or range (e.g., '443', '1024-65535')."),
@@ -148,3 +148,22 @@ export const AnalyzeEmailOutputSchema = z.object({
     recommendation: z.string().describe('An actionable recommendation for the user.'),
 });
 export type AnalyzeEmailOutput = z.infer<typeof AnalyzeEmailOutputSchema>;
+
+// schemas for dark-web-scanner.ts
+export const DarkWebScanInputSchema = z.object({
+  email: z.string().email().describe('The email address to scan for in data breaches.'),
+});
+export type DarkWebScanInput = z.infer<typeof DarkWebScanInputSchema>;
+
+const BreachInfoSchema = z.object({
+  source: z.string().describe('The name of the company or service that was breached.'),
+  date: z.string().describe('The approximate date of the breach (e.g., "July 2021").'),
+  compromisedData: z.array(z.string()).describe('A list of the types of data that were compromised in the breach.'),
+});
+
+export const DarkWebScanOutputSchema = z.object({
+    breaches: z.array(BreachInfoSchema).describe('A list of simulated data breaches where the email was found.'),
+    summary: z.string().describe('A concise summary of the scan findings.'),
+    recommendations: z.array(z.string()).describe('A list of actionable steps for the user to take.'),
+});
+export type DarkWebScanOutput = z.infer<typeof DarkWebScanOutputSchema>;
