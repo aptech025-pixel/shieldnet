@@ -7,9 +7,10 @@ import { generateFirewallRules } from '@/ai/flows/generate-firewall-rules';
 import { analyzeWebsite } from '@/ai/flows/analyze-website';
 import { generatePassword } from '@/ai/flows/generate-password';
 import { getTopAttackOrigins } from '@/ai/flows/get-top-attack-origins';
+import { analyzeEmail } from '@/ai/flows/analyze-email';
 import { getIpInfo as getIpInfoTool } from '@/ai/tools/get-ip-info';
 import { z } from 'zod';
-import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput } from '@/ai/schemas';
+import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput, AnalyzeEmailInput, AnalyzeEmailOutput } from '@/ai/schemas';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
   networkLogs: z.string(),
@@ -88,6 +89,16 @@ export async function generatePasswordAction(input: GeneratePasswordInput): Prom
 
 export async function getTopAttackOriginsAction(): Promise<GetTopAttackOriginsOutput> {
     const result = await getTopAttackOrigins();
+    return result;
+}
+
+const AnalyzeEmailInputSchema = z.object({
+  emailContent: z.string().min(50, { message: 'Please enter at least 50 characters of email content.' }),
+});
+
+export async function analyzeEmailAction(input: AnalyzeEmailInput): Promise<AnalyzeEmailOutput> {
+    const parsedInput = AnalyzeEmailInputSchema.parse(input);
+    const result = await analyzeEmail(parsedInput);
     return result;
 }
 

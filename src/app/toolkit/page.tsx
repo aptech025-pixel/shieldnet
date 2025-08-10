@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Menu } from 'lucide-react';
 import { PasswordGenerator } from '@/components/password-generator';
+import { EmailAnalyzer } from '@/components/email-analyzer';
 
 export default function ToolkitPage() {
   const { toggleSidebar } = useSidebar();
@@ -23,7 +24,7 @@ export default function ToolkitPage() {
 
         <div className="grid gap-6">
             <PasswordGenerator />
-            {/* Future tools can be added here */}
+            <EmailAnalyzer />
         </div>
     </main>
   );

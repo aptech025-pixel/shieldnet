@@ -134,3 +134,17 @@ export const GetTopAttackOriginsOutputSchema = z.object({
   attacks: z.array(AttackOriginSchema).describe('A list of the top 10 attack origin countries.'),
 });
 export type GetTopAttackOriginsOutput = z.infer<typeof GetTopAttackOriginsOutputSchema>;
+
+// schemas for analyze-email.ts
+export const AnalyzeEmailInputSchema = z.object({
+  emailContent: z.string().min(50).describe('The full content of the email to be analyzed.'),
+});
+export type AnalyzeEmailInput = z.infer<typeof AnalyzeEmailInputSchema>;
+
+export const AnalyzeEmailOutputSchema = z.object({
+    riskLevel: z.enum(['Low', 'Medium', 'High', 'Critical']).describe('The assessed risk level of the email.'),
+    summary: z.string().describe('A concise summary of the analysis findings.'),
+    redFlags: z.array(z.string()).describe('A list of specific red flags identified in the email.'),
+    recommendation: z.string().describe('An actionable recommendation for the user.'),
+});
+export type AnalyzeEmailOutput = z.infer<typeof AnalyzeEmailOutputSchema>;
