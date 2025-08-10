@@ -8,6 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {z} from 'zod';
 import {
   ChatAssistantInput,
   ChatAssistantInputSchema,
@@ -24,6 +25,7 @@ import {
   GenerateFirewallRulesInputSchema,
   GenerateFirewallRulesOutputSchema,
   ChatMessage,
+  ChatMessageSchema,
 } from '@/ai/schemas';
 import {analyzeWebsite} from './analyze-website';
 import {analyzeEmail} from './analyze-email';
@@ -146,21 +148,29 @@ When responding to users:
         const llmResponse = await prompt({history: currentMessages});
 
         if (llmResponse.toolRequest) {
-            const toolRequest = llmResponse.toolRequest;
-            const toolResponse = await ai.runTool(toolRequest);
-            
-            // Add the model's tool request and the tool's response to the history
-            currentMessages = [
-                ...currentMessages,
-                { role: 'model', content: llmResponse.content },
-                { role: 'tool', content: [{ toolResponse: { name: toolRequest.name, output: toolResponse.output } }] },
-            ];
-            // Continue the loop to get the next model response
-            continue;
+          const toolRequest = llmResponse.toolRequest;
+          const toolResponse = await ai.runTool(toolRequest);
+          
+          // Add the model's tool request and the tool's response to the history
+          currentMessages = [
+              ...currentMessages,
+              { role: 'model', content: [{ toolRequest }] },
+              { role: 'tool', content: [{ toolResponse }] },
+          ];
+          // Continue the loop to get the next model response
+          continue;
         }
         
         // If there's no tool request, it's the final answer.
-        return { message: llmResponse.context };
+        // The zod schema for ChatMessage expects content to be an array.
+        const finalMessage = {
+          role: 'model',
+          content: llmResponse.content,
+        } as const;
+
+        const validatedMessage = ChatMessageSchema.parse(finalMessage);
+
+        return { message: validatedMessage };
       }
     }
   );
