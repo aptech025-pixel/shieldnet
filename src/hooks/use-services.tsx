@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, createContext, useContext, type ReactNode, useEffect } from 'react';
+import { useState, createContext, useContext, type ReactNode, useEffect, useCallback } from 'react';
 import { useToast } from './use-toast';
 import { useAuth } from './use-auth';
 import { db } from '@/lib/firebase';
@@ -31,9 +31,32 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
   const { user } = useAuth();
 
+  const getLocalStorageKey = useCallback(() => {
+    return user ? `shieldnet_services_${user.uid}` : null;
+  }, [user]);
+
   useEffect(() => {
     if (user) {
       setLoading(true);
+      const storageKey = getLocalStorageKey();
+
+      // Load from localStorage first for instant UI
+      if (storageKey) {
+        try {
+          const cachedServices = localStorage.getItem(storageKey);
+          if (cachedServices) {
+            const parsedServices = JSON.parse(cachedServices).map((s: any) => ({
+              ...s,
+              createdAt: new Timestamp(s.createdAt.seconds, s.createdAt.nanoseconds),
+            }));
+            setServices(parsedServices);
+          }
+        } catch (error) {
+            console.error("Failed to parse services from localStorage", error);
+            localStorage.removeItem(storageKey);
+        }
+      }
+      
       const q = query(collection(db, "monitoredServices"), where("userId", "==", user.uid));
       
       const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -41,9 +64,20 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
         querySnapshot.forEach((doc) => {
           servicesData.push({ id: doc.id, ...doc.data() } as MonitoredService);
         });
-        // Sort by creation date
+        
         servicesData.sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
+        
         setServices(servicesData);
+
+        // Update localStorage with fresh data
+        if (storageKey) {
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(servicesData));
+            } catch (error) {
+                console.error("Failed to save services to localStorage", error);
+            }
+        }
+        
         setLoading(false);
       }, (error) => {
         console.error("Error fetching services: ", error);
@@ -57,10 +91,15 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
 
       return () => unsubscribe();
     } else {
-      // If no user, clear services and set loading to false
+      // If no user, clear services and local storage for the previous user
+      const storageKey = getLocalStorageKey();
+       if (storageKey) {
+          localStorage.removeItem(storageKey);
+       }
       setServices([]);
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, toast]);
 
   const addService = async (url: string) => {
@@ -78,6 +117,7 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
         userId: user.uid,
         status: randomStatus,
         createdAt: Timestamp.now(),
+        description: `${url.replace(/^https?:\/\//, '')} services`,
       });
 
       toast({
