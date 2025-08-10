@@ -34,12 +34,14 @@ export async function explainThreat(
   - Date: {{{date}}}
 
   Based on these details, provide the following in a JSON object:
-  1.  **explanation**: A clear, concise explanation of what this threat is. Avoid overly technical jargon. Explain the potential risk if it were not handled.
-  2.  **recommendations**: A list of 3-5 specific, actionable steps the user should take. These should be practical for a small business owner. For example, instead of "reconfigure firewall," suggest "Block the source IP address ({{{sourceIp}}}) in your firewall settings."
+  1.  **explanation**: A clear, concise explanation of what this threat is. Avoid overly technical jargon.
+  2.  **potentialImpact**: Describe the potential business or security impact if this threat were not handled successfully. For example, "This could lead to unauthorized access to customer data" or "An attacker could take your website offline."
+  3.  **recommendations**: A list of 3-5 specific, actionable steps the user should take. These should be practical for a small business owner. For example, instead of "reconfigure firewall," suggest "Block the source IP address ({{{sourceIp}}}) in your firewall settings."
 
   Example Output Format:
   {
     "explanation": "A SQL Injection is an attempt by an attacker to manipulate your database...",
+    "potentialImpact": "If successful, an attacker could steal, modify, or delete sensitive customer information from your database.",
     "recommendations": [
       "Immediately block the source IP address ({{{sourceIp}}}) in your firewall.",
       "Review the application code to ensure all database queries are parameterized.",

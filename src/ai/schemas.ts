@@ -62,6 +62,9 @@ export const ExplainThreatOutputSchema = z.object({
   explanation: z
     .string()
     .describe('A clear, human-readable explanation of what the threat is and its potential impact.'),
+  potentialImpact: z
+    .string()
+    .describe('A summary of the potential business or security impact if the threat is not handled.'),
   recommendations: z
     .array(z.string())
     .describe('A list of specific, actionable steps the user should take to mitigate the threat and improve security.'),

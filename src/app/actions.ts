@@ -15,7 +15,7 @@ import { generatePhishingCampaign } from '@/ai/flows/generate-phishing-campaign'
 import { getIpInfo as getIpInfoTool } from '@/ai/tools/get-ip-info';
 import { z } from 'zod';
 import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput, AnalyzeEmailInput, AnalyzeEmailOutput, DarkWebScanInput, DarkWebScanOutput, ChatAssistantInput, ChatAssistantOutput, SummarizeSecurityArticleInput, SummarizeSecurityArticleOutput, GeneratePhishingCampaignInput, GeneratePhishingCampaignOutput } from '@/ai/schemas';
-import { ChatAssistantInputSchema, GeneratePhishingCampaignInputSchema, SummarizeSecurityArticleInputSchema } from '@/ai/schemas';
+import { ChatAssistantInputSchema, ExplainThreatInputSchema, GeneratePhishingCampaignInputSchema, SummarizeSecurityArticleInputSchema } from '@/ai/schemas';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
   networkLogs: z.string(),
@@ -26,14 +26,6 @@ export async function analyzeNetworkLogsAction(input: AnalyzeNetworkLogsInput) {
   const result = await analyzeNetworkLogs(parsedInput);
   return result;
 }
-
-const ExplainThreatInputSchema = z.object({
-    threat: z.string().describe('The name of the threat, e.g., "SQL Injection Attempt".'),
-    severity: z.string().describe('The severity of the threat (High, Medium, or Low).'),
-    sourceIp: z.string().describe('The source IP address of the threat.'),
-    status: z.string().describe('The current status of the threat (e.g., Blocked, Mitigated).'),
-    date: z.string().describe('The date and time the threat was detected.'),
-});
 
 export async function explainThreatAction(input: ExplainThreatInput): Promise<ExplainThreatOutput> {
   const parsedInput = ExplainThreatInputSchema.parse(input);

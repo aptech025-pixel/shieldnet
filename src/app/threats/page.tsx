@@ -137,6 +137,11 @@ export default function ThreatsPage() {
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-4/5" />
       </div>
+       <div className="space-y-2">
+        <Skeleton className="h-5 w-1/4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-4/5" />
+      </div>
       <div className="space-y-2">
         <Skeleton className="h-5 w-1/3" />
         <Skeleton className="h-4 w-full" />
@@ -252,13 +257,17 @@ export default function ThreatsPage() {
                 {isLoadingAnalysis && <AnalysisSkeleton />}
                 
                 {analysis && (
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-semibold flex items-center gap-2 mb-2"><Info /> AI Explanation</h4>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <h4 className="font-semibold flex items-center gap-2 mb-1 text-base"><Info /> Explanation</h4>
                       <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{analysis.explanation}</div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold flex items-center gap-2 mb-2"><ListChecks /> AI Recommendations</h4>
+                     <div className="space-y-2">
+                      <h4 className="font-semibold flex items-center gap-2 mb-1 text-base"><AlertTriangle className="text-destructive" /> Potential Impact</h4>
+                      <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">{analysis.potentialImpact}</div>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="font-semibold flex items-center gap-2 mb-1 text-base"><ListChecks /> Recommendations</h4>
                       <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground bg-muted p-3 rounded-md">
                         {analysis.recommendations.map((rec, index) => <li key={index}>{rec}</li>)}
                       </ul>
