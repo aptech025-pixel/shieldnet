@@ -1,6 +1,6 @@
 
 "use client";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Table,
   TableHeader,
@@ -26,13 +26,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Shield, CheckCircle, Search, ListFilter, Menu, Loader2, Info, ListChecks } from 'lucide-react';
+import { AlertTriangle, Shield, CheckCircle, Search, ListFilter, Menu, Loader2, Info, ListChecks, Globe } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { explainThreatAction } from '@/app/actions';
 import type { ExplainThreatOutput } from '@/ai/schemas';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
+import { getIpInfo } from '@/ai/tools/get-ip-info';
 
 const threatsData = [
   { id: 1, threat: 'SQL Injection Attempt', severity: 'High', status: 'Blocked', date: '2023-11-01 14:30', sourceIp: '198.51.100.2' },
@@ -46,6 +47,19 @@ const threatsData = [
 ];
 
 type Threat = typeof threatsData[0];
+
+const countryCodeToName: Record<string, string> = {
+    US: "United States",
+    RU: "Russia",
+    CN: "China",
+    BR: "Brazil",
+    NG: "Nigeria",
+    DE: "Germany",
+    IN: "India",
+    IR: "Iran",
+    GB: "United Kingdom",
+    VN: "Vietnam",
+};
 
 const SeverityBadge = ({ severity }: { severity: string }) => {
   const s = severity.toUpperCase();
@@ -67,6 +81,7 @@ export default function ThreatsPage() {
   const [selectedThreat, setSelectedThreat] = useState<Threat | null>(null);
   const [analysis, setAnalysis] = useState<ExplainThreatOutput | null>(null);
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
+  const [ipCountry, setIpCountry] = useState<string | null>(null);
   const { toggleSidebar } = useSidebar();
 
   const filteredThreats = useMemo(() => {
@@ -90,15 +105,22 @@ export default function ThreatsPage() {
     setSelectedThreat(threat);
     setIsLoadingAnalysis(true);
     setAnalysis(null);
+    setIpCountry(null);
     try {
-      const result = await explainThreatAction({
-          threat: threat.threat,
-          severity: threat.severity,
-          sourceIp: threat.sourceIp,
-          status: threat.status,
-          date: threat.date,
-      });
-      setAnalysis(result);
+      const [analysisResult, ipInfoResult] = await Promise.all([
+        explainThreatAction({
+            threat: threat.threat,
+            severity: threat.severity,
+            sourceIp: threat.sourceIp,
+            status: threat.status,
+            date: threat.date,
+        }),
+        getIpInfo({ ip: threat.sourceIp })
+      ]);
+      setAnalysis(analysisResult);
+      if (ipInfoResult.country && ipInfoResult.country !== 'Unknown') {
+        setIpCountry(countryCodeToName[ipInfoResult.country] || ipInfoResult.country);
+      }
     } catch (error) {
       console.error("Failed to get threat analysis:", error);
       // Optionally set an error state to show in the dialog
@@ -109,6 +131,7 @@ export default function ThreatsPage() {
 
   const AnalysisSkeleton = () => (
     <div className="space-y-4 pt-4">
+      <Skeleton className="h-4 w-1/2 mb-4" />
       <div className="space-y-2">
         <Skeleton className="h-5 w-1/4" />
         <Skeleton className="h-4 w-full" />
@@ -220,6 +243,8 @@ export default function ThreatsPage() {
               <ScrollArea className="pr-6 -mr-6">
                 <div className="py-4 space-y-2 text-sm">
                     <div className="flex items-center gap-2"><strong>Source IP:</strong> <Badge variant="outline">{selectedThreat.sourceIp}</Badge></div>
+                    {isLoadingAnalysis && !ipCountry && <Skeleton className="h-4 w-28 mt-1" />}
+                    {ipCountry && <div className="flex items-center gap-2"><strong>Origin:</strong> <Badge variant="secondary" className="gap-1"><Globe className="h-3 w-3" />{ipCountry}</Badge></div>}
                     <div><strong>Status:</strong> {selectedThreat.status}</div>
                     <div><strong>Detected on:</strong> {selectedThreat.date}</div>
                 </div>

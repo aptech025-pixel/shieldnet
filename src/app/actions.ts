@@ -7,6 +7,7 @@ import { generateFirewallRules } from '@/ai/flows/generate-firewall-rules';
 import { analyzeWebsite } from '@/ai/flows/analyze-website';
 import { generatePassword } from '@/ai/flows/generate-password';
 import { getTopAttackOrigins } from '@/ai/flows/get-top-attack-origins';
+import { getIpInfo as getIpInfoTool } from '@/ai/tools/get-ip-info';
 import { z } from 'zod';
 import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput } from '@/ai/schemas';
 
@@ -87,5 +88,16 @@ export async function generatePasswordAction(input: GeneratePasswordInput): Prom
 
 export async function getTopAttackOriginsAction(): Promise<GetTopAttackOriginsOutput> {
     const result = await getTopAttackOrigins();
+    return result;
+}
+
+const GetIpInfoInputSchema = z.object({
+  ip: z.string().ip(),
+});
+
+export async function getIpInfo(input: z.infer<typeof GetIpInfoInputSchema>) {
+    const parsedInput = GetIpInfoInputSchema.parse(input);
+    // Directly call the tool as a server function
+    const result = await getIpInfoTool.fn(parsedInput);
     return result;
 }
