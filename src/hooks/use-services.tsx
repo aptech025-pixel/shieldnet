@@ -57,6 +57,7 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
 
       return () => unsubscribe();
     } else {
+      // If no user, clear services and set loading to false
       setServices([]);
       setLoading(false);
     }
@@ -70,24 +71,13 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
 
     const statuses: MonitoredService['status'][] = ["Operational", "Degraded Performance", "Offline"];
     const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-    const newServiceId = doc(collection(db, 'monitoredServices')).id;
-    const newService: MonitoredService = {
-      id: newServiceId,
-      url,
-      userId: user.uid,
-      status: randomStatus,
-      createdAt: Timestamp.now(),
-    };
-
-    // Optimistic update
-    setServices(currentServices => [...currentServices, newService]);
-
+    
     try {
       await addDoc(collection(db, "monitoredServices"), {
         url,
         userId: user.uid,
         status: randomStatus,
-        createdAt: newService.createdAt,
+        createdAt: Timestamp.now(),
       });
 
       toast({
@@ -96,8 +86,6 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
       });
     } catch (error) {
       console.error("Error adding service: ", error);
-      // Revert optimistic update on failure
-      setServices(currentServices => currentServices.filter(s => s.id !== newServiceId));
       toast({
         variant: "destructive",
         title: "Error",
@@ -115,9 +103,6 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
     const serviceToRemove = services.find(s => s.id === id);
     if (!serviceToRemove) return;
 
-    // Optimistic update
-    setServices(currentServices => currentServices.filter(s => s.id !== id));
-
     try {
       await deleteDoc(doc(db, "monitoredServices", id));
       toast({
@@ -126,8 +111,6 @@ export const ServicesProvider = ({ children }: { children: ReactNode }) => {
       });
     } catch (error) {
       console.error("Error removing service: ", error);
-      // Revert optimistic update on failure
-      setServices(currentServices => [...currentServices, serviceToRemove].sort((a,b) => a.createdAt.toMillis() - b.createdAt.toMillis()));
       toast({
         variant: "destructive",
         title: "Error",

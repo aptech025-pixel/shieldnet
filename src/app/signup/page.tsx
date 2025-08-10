@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, collection, addDoc, Timestamp } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -15,12 +15,20 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Shield } from "lucide-react";
+import type { MonitoredService } from "@/hooks/use-services";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
   username: z.string().min(3, { message: "Username must be at least 3 characters." }),
 });
+
+const defaultServices = [
+    { url: "https://google.com", description: "Google Search and Services" },
+    { url: "https://github.com", description: "GitHub Platform" },
+    { url: "https://cloudflare.com", description: "Cloudflare Network" },
+];
+
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +57,20 @@ export default function SignupPage() {
         createdAt: new Date(),
       });
       
+      // Add default monitored services for the new user
+      const servicesCollectionRef = collection(db, "monitoredServices");
+      const statuses: MonitoredService['status'][] = ["Operational", "Degraded Performance", "Offline"];
+
+      for (const service of defaultServices) {
+          await addDoc(servicesCollectionRef, {
+              url: service.url,
+              description: service.description,
+              userId: user.uid,
+              status: statuses[Math.floor(Math.random() * statuses.length)],
+              createdAt: Timestamp.now(),
+          });
+      }
+
       router.push("/");
 
     } catch (error: any) {
