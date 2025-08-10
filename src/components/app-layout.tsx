@@ -1,3 +1,4 @@
+
 "use client"
 import {
   Sidebar,
@@ -27,7 +28,6 @@ import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { AiChatAssistant } from './ai-chat-assistant';
 import { useEffect, useRef } from 'react';
 
 export function AppLayout({
@@ -155,7 +155,6 @@ export function AppLayout({
       </Sidebar>
       <SidebarInset>
         {children}
-        <AiChatAssistant />
       </SidebarInset>
     </>
   );
