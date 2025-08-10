@@ -33,7 +33,7 @@ import type { ExplainThreatOutput } from '@/ai/schemas';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
-import { getIpInfo } from '@/ai/tools/get-ip-info';
+import { getIpInfo } from '@/app/actions';
 
 const threatsData = [
   { id: 1, threat: 'SQL Injection Attempt', severity: 'High', status: 'Blocked', date: '2023-11-01 14:30', sourceIp: '198.51.100.2' },

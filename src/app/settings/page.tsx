@@ -125,7 +125,7 @@ export default function SettingsPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit">Update Profile</Button>
+                <Button type="submit" className="w-full sm:w-auto">Update Profile</Button>
               </form>
             </Form>
           </CardContent>
@@ -165,7 +165,7 @@ export default function SettingsPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit">Change Password</Button>
+                <Button type="submit" className="w-full sm:w-auto">Change Password</Button>
               </form>
             </Form>
           </CardContent>
@@ -178,15 +178,15 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="flex items-center justify-between space-x-2 p-4 rounded-md border">
-                    <Label htmlFor="email-notifications">Email Notifications</Label>
+                    <Label htmlFor="email-notifications" className="flex-1">Email Notifications</Label>
                     <Switch id="email-notifications" defaultChecked />
                 </div>
                  <div className="flex items-center justify-between space-x-2 p-4 rounded-md border">
-                    <Label htmlFor="push-notifications">Push Notifications</Label>
+                    <Label htmlFor="push-notifications" className="flex-1">Push Notifications</Label>
                     <Switch id="push-notifications" />
                 </div>
                  <div className="flex items-center justify-between space-x-2 p-4 rounded-md border">
-                    <Label htmlFor="threat-alerts">High-Severity Threat Alerts</Label>
+                    <Label htmlFor="threat-alerts" className="flex-1">High-Severity Threat Alerts</Label>
                     <Switch id="threat-alerts" defaultChecked/>
                 </div>
             </CardContent>

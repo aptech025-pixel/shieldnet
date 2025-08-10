@@ -122,7 +122,7 @@ export function Dashboard() {
         </div>
       </div>
 
-       <div className="grid gap-4 md:grid-cols-1">
+       <div className="grid gap-4">
          <Card>
            <CardHeader>
              <CardTitle className="font-headline">Network Traffic by Source</CardTitle>

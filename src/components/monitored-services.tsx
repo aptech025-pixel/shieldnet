@@ -128,12 +128,12 @@ export function MonitoredServicesManager() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-start gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col sm:flex-row items-start gap-4">
             <FormField
               control={form.control}
               name="url"
               render={({ field }) => (
-                <FormItem className="flex-1">
+                <FormItem className="flex-1 w-full">
                   <FormControl>
                     <div className="relative">
                         <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -144,7 +144,7 @@ export function MonitoredServicesManager() {
                 </FormItem>
               )}
             />
-            <Button type="submit" variant="outline" disabled={isAdding}>
+            <Button type="submit" variant="outline" disabled={isAdding} className="w-full sm:w-auto">
               {isAdding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
               {isAdding ? 'Adding...' : 'Add'}
             </Button>

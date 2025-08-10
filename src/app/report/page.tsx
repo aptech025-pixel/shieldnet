@@ -170,7 +170,7 @@ export default function ReportPage() {
                             <FormMessage />
                             </FormItem>
                         )} />
-                        <Button type="submit" disabled={isLoading}>
+                        <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
                             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4" />}
                             {isLoading ? 'Analyzing...' : 'Generate & Review Report'}
                         </Button>
@@ -210,11 +210,11 @@ export default function ReportPage() {
                             <p className="whitespace-pre-wrap text-sm">{report.generatedBody}</p>
                         </div>
                     </CardContent>
-                    <CardContent className="flex justify-between">
-                         <Button variant="outline" onClick={handleBack} disabled={isLoading}>
+                    <CardContent className="flex flex-col sm:flex-row justify-between gap-4">
+                         <Button variant="outline" onClick={handleBack} disabled={isLoading} className="w-full sm:w-auto">
                             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Edit
                         </Button>
-                        <Button onClick={handleSendReport} disabled={isLoading}>
+                        <Button onClick={handleSendReport} disabled={isLoading} className="w-full sm:w-auto">
                             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                             Submit to IT
                         </Button>
@@ -234,7 +234,7 @@ export default function ReportPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                         <Button onClick={() => setStage('form')}>
+                         <Button onClick={() => setStage('form')} className="w-full sm:w-auto">
                             Create Another Report
                         </Button>
                     </CardContent>

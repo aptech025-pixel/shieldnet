@@ -22,7 +22,7 @@ export default function ToolkitPage() {
             </div>
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid gap-6 lg:grid-cols-1">
             <PasswordGenerator />
             <EmailAnalyzer />
         </div>

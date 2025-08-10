@@ -115,8 +115,8 @@ export function FirewallManager() {
               )}
             />
           </CardContent>
-          <CardFooter className="flex-col items-stretch gap-4">
-            <Button type="submit" disabled={isLoading} className="w-full">
+          <CardFooter>
+            <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -141,7 +141,7 @@ export function FirewallManager() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="pt-0">
-                <ScrollArea className="h-full max-h-[400px] w-full rounded-md border">
+                <ScrollArea className="w-full whitespace-nowrap rounded-md border">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -165,7 +165,7 @@ export function FirewallManager() {
                                     <TableCell>{rule.source}</TableCell>
                                     <TableCell>{rule.destination}</TableCell>
                                     <TableCell>{rule.port}</TableCell>
-                                    <TableCell>{rule.description}</TableCell>
+                                    <TableCell className="whitespace-normal">{rule.description}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

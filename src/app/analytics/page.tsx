@@ -111,7 +111,7 @@ export default function AnalyticsPage() {
             </Button>
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
             <CardHeader>
                 <CardTitle className="font-headline">Threat Trends Over Time</CardTitle>
