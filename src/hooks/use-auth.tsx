@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useState, useEffect, createContext, useContext, type ReactNode } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter, usePathname } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { Preloader } from '@/components/preloader';
 
 interface AuthContextType {
   user: User | null;
@@ -43,11 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const value = { user, loading };
 
   if (loading) {
-     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+     return <Preloader />;
   }
 
   const isAuthPage = pathname === '/login' || pathname === '/signup';
@@ -72,11 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // logged in on an auth page (and about to be redirected) or logged out
   // on a protected page (and about to be redirected).
   // Showing a loader here prevents a flash of incorrect content.
-  return (
-    <div className="flex h-screen w-full items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin" />
-    </div>
-  );
+  return <Preloader />;
 };
 
 export const useAuth = () => useContext(AuthContext);
