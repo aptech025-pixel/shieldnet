@@ -26,6 +26,7 @@ import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { AiChatAssistant } from './ai-chat-assistant';
 
 export function AppLayout({
   children,
@@ -129,6 +130,7 @@ export function AppLayout({
       </Sidebar>
       <SidebarInset>
         {children}
+        <AiChatAssistant />
       </SidebarInset>
     </>
   );

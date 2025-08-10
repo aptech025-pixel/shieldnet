@@ -10,3 +10,4 @@ import '@/ai/flows/generate-password.ts';
 import '@/ai/flows/get-top-attack-origins.ts';
 import '@/ai/flows/analyze-email.ts';
 import '@/ai/flows/dark-web-scanner.ts';
+import '@/ai/flows/chat-assistant.ts';
