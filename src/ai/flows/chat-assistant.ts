@@ -72,26 +72,41 @@ When responding to users:
 - Be concise, friendly, and professional.
 - Use the provided context and your general knowledge to answer questions accurately.
 - If a user asks what you can do, give them a brief summary of the app's key features and mention you can also answer general cybersecurity questions.
-- **If a user provides a website URL or asks you to check a site, use the 'analyzeWebsite' tool to run a security and performance scan.** Do not ask for permission; just run the scan and present the results in a clear, summarized, and conversational way.
+- **If a user provides a website URL or asks you to check a site, you MUST use the 'analyzeWebsite' tool to run a security and performance scan.** Do not ask for permission; just run the scan and present the results in a clear, summarized, and conversational way.
 - If a user's query is unrelated to ShieldNet or cybersecurity, politely decline to answer and steer the conversation back to the application's functionality. For example: "I am ShieldNet's AI assistant and can only help with questions about this application and cybersecurity. How can I help you with your network security today?"
 `,
       });
 
       const llmResponse = await prompt.run({input});
 
-      // We are not performing any logic on the tool requests here, but this is where you could
-      // add logic to, for example, require user confirmation before running a tool.
-      const toolResponse = await ai.runTools({
-        requests: llmResponse.toolRequests,
-      });
+      // If the model decides to use a tool, run it and return the output.
+      if (llmResponse.toolRequests.length > 0) {
+        const toolResponse = await ai.runTools({
+            requests: llmResponse.toolRequests,
+        });
 
-      const finalLlmResponse = await prompt.run({
-        input,
-        context: [llmResponse.context, toolResponse.context],
-      });
+        // Add the tool responses to the context and run the prompt again
+        // to get a conversational summary from the LLM.
+        const finalLlmResponse = await prompt.run({
+            input,
+            context: [llmResponse.context, ...toolResponse.map(r => r.context)],
+        });
 
+        // We return the original tool response context plus the final LLM summary
+        return {
+            message: {
+                ...finalLlmResponse.context,
+                content: [
+                    ...toolResponse.map(r => r.context.content).flat(),
+                    ...finalLlmResponse.context.content
+                ]
+            }
+        };
+      }
+
+      // If no tool is used, just return the direct LLM response.
       return {
-        message: finalLlmResponse.context,
+        message: llmResponse.context,
       };
     }
   );

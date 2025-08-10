@@ -19,28 +19,30 @@ import type { ChatMessage, AnalyzeWebsiteOutput } from '@/ai/schemas';
 import { chatAssistantAction } from '@/app/actions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Separator } from './ui/separator';
 
 
 const WebsiteAnalysisResult = ({ result }: { result: AnalyzeWebsiteOutput }) => (
     <div className="p-3 rounded-lg bg-muted/50 border space-y-3 text-sm my-2">
-        <div className="flex justify-around text-center">
+         <div className="flex flex-col sm:flex-row justify-around text-center gap-2 p-2 bg-muted rounded-lg">
             <div>
-                <p className="text-xs text-muted-foreground">Security Score</p>
-                <p className="text-xl font-bold">{result.securityScore}/100</p>
+                <h4 className="text-xs font-medium text-muted-foreground">Security Score</h4>
+                <p className="text-2xl font-bold text-primary">{result.securityScore}/100</p>
             </div>
-             <div>
-                <p className="text-xs text-muted-foreground">Perf. Grade</p>
-                <p className="text-xl font-bold">{result.performanceGrade}</p>
+             <div className="mt-2 sm:mt-0">
+                <h4 className="text-xs font-medium text-muted-foreground">Performance Grade</h4>
+                <p className="text-2xl font-bold text-primary">{result.performanceGrade}</p>
             </div>
         </div>
+        <Separator />
         <div>
-            <p className="font-semibold text-xs mb-1">Summary</p>
+            <p className="font-semibold text-xs mb-1 flex items-center gap-1"><Shield className="w-3 h-3" /> Vulnerability Summary</p>
             <p className="text-muted-foreground">{result.vulnerabilitySummary}</p>
         </div>
         <div>
             <p className="font-semibold text-xs mb-1 flex items-center gap-1"><ListChecks className="w-3 h-3" /> Recommendations</p>
             <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                {result.recommendations.slice(0, 2).map((rec, i) => <li key={i}>{rec}</li>)}
+                {result.recommendations.map((rec, i) => <li key={i}>{rec}</li>)}
             </ul>
         </div>
     </div>
@@ -59,7 +61,7 @@ export function AiChatAssistant() {
         if(isOpen && messages.length === 0) {
             // Add initial welcome message
             setMessages([
-                { role: 'model', content: [{ text: 'Hello! I am the ShieldNet AI Assistant. How can I help you today? You can ask me about the app\'s features or general cybersecurity topics.' }] }
+                { role: 'model', content: [{ text: 'Hello! I am the ShieldNet AI Assistant. How can I help you today? You can ask me about the app\'s features, global security news, or ask me to analyze a website URL for you.' }] }
             ]);
         }
     }, [isOpen, messages.length]);
@@ -146,14 +148,17 @@ export function AiChatAssistant() {
                                         </div>
                                     )}
                                     <div className={cn(
-                                        "p-3 rounded-lg max-w-[80%]",
+                                        "rounded-lg max-w-[80%]",
                                         message.role === 'user' 
-                                            ? "bg-primary text-primary-foreground" 
+                                            ? "bg-primary text-primary-foreground p-3" 
                                             : "bg-muted"
                                     )}>
                                         {message.content.map((part, partIndex) => {
                                             if (part.text) {
-                                                return <div key={partIndex}>{part.text}</div>;
+                                                // If there's a tool response, the text from the LLM will just be a conversational wrapper, so we add padding.
+                                                // If it's just a text response, it gets the normal padding.
+                                                const hasToolResponse = message.content.some(p => p.toolResponse);
+                                                return <div key={partIndex} className={cn(hasToolResponse ? 'pb-2' : 'p-3')}>{part.text}</div>;
                                             }
                                             if (part.toolResponse?.name === 'analyzeWebsite' && part.toolResponse.output) {
                                                 return <WebsiteAnalysisResult key={partIndex} result={part.toolResponse.output as AnalyzeWebsiteOutput} />;
@@ -189,7 +194,7 @@ export function AiChatAssistant() {
                     <DialogFooter className="p-4 border-t">
                         <form onSubmit={handleSubmit} className="w-full flex items-center gap-2">
                             <Input 
-                                placeholder="Ask about a feature..."
+                                placeholder="Ask about a feature or paste a URL..."
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 disabled={isLoading}
