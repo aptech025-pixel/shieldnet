@@ -144,6 +144,7 @@ When responding to users:
       });
 
       let currentMessages = [...messages];
+      
       while (true) {
         const llmResponse = await prompt({history: currentMessages});
 
@@ -151,18 +152,15 @@ When responding to users:
           const toolRequest = llmResponse.toolRequest;
           const toolResponse = await ai.runTool(toolRequest);
           
-          // Add the model's tool request and the tool's response to the history
           currentMessages = [
               ...currentMessages,
               { role: 'model', content: [{ toolRequest }] },
               { role: 'tool', content: [{ toolResponse }] },
           ];
-          // Continue the loop to get the next model response
+
           continue;
         }
         
-        // If there's no tool request, it's the final answer.
-        // The zod schema for ChatMessage expects content to be an array.
         const finalMessage = {
           role: 'model',
           content: llmResponse.content,
