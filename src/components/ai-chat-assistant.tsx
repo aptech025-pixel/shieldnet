@@ -14,13 +14,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { MessageCircle, Send, Loader2, Sparkles, User, Shield, ListChecks } from "lucide-react";
-import type { ChatMessage, AnalyzeWebsiteOutput } from '@/ai/schemas';
+import { MessageCircle, Send, Loader2, Sparkles, User, Shield, ListChecks, MailWarning, ShieldAlert, KeyRound, Copy, ClipboardCheck } from "lucide-react";
+import type { ChatMessage, AnalyzeWebsiteOutput, AnalyzeEmailOutput, DarkWebScanOutput, GeneratePasswordOutput, GenerateFirewallRulesOutput } from '@/ai/schemas';
 import { chatAssistantAction } from '@/app/actions';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
+import { Badge } from './ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
 
+
+const RiskBadge = ({ risk }: { risk: string }) => {
+    // ... same as in email-analyzer
+    return <Badge>{risk}</Badge>;
+}
 
 const WebsiteAnalysisResult = ({ result }: { result: AnalyzeWebsiteOutput }) => (
     <div className="p-3 rounded-lg bg-muted/50 border space-y-3 text-sm my-2">
@@ -48,6 +56,109 @@ const WebsiteAnalysisResult = ({ result }: { result: AnalyzeWebsiteOutput }) => 
     </div>
 );
 
+const EmailAnalysisResult = ({ result }: { result: AnalyzeEmailOutput }) => (
+    <div className="p-3 rounded-lg bg-muted/50 border space-y-3 text-sm my-2">
+        <div className="flex justify-between items-center">
+            <h4 className="font-semibold flex items-center gap-2"><MailWarning className="text-primary"/> Email Analysis</h4>
+            <RiskBadge risk={result.riskLevel} />
+        </div>
+        <p className="text-muted-foreground italic">"{result.summary}"</p>
+        {result.redFlags.length > 0 && (
+             <div>
+                <p className="font-semibold text-xs mb-1">Detected Red Flags</p>
+                <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                    {result.redFlags.map((flag, i) => <li key={i}>{flag}</li>)}
+                </ul>
+            </div>
+        )}
+        <div>
+            <p className="font-semibold text-xs mb-1">Recommendation</p>
+            <p className="text-muted-foreground">{result.recommendation}</p>
+        </div>
+    </div>
+);
+
+const DarkWebScanResult = ({ result }: { result: DarkWebScanOutput }) => (
+    <div className="p-3 rounded-lg bg-muted/50 border space-y-3 text-sm my-2">
+         <h4 className="font-semibold flex items-center gap-2"><ShieldAlert className="text-primary"/> Dark Web Scan Results</h4>
+         <p className="text-muted-foreground italic">{result.summary}</p>
+         {result.breaches.length > 0 ? (
+            <div>
+                 <p className="font-semibold text-xs mb-1">Found in {result.breaches.length} breach(es):</p>
+                 <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                    {result.breaches.map((breach, i) => <li key={i}>{breach.source} ({breach.date})</li>)}
+                </ul>
+            </div>
+         ) : (
+             <p className="text-muted-foreground font-medium text-green-600">No breaches found for this email.</p>
+         )}
+          <div>
+            <p className="font-semibold text-xs mb-1">Recommendations</p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                {result.recommendations.map((rec, i) => <li key={i}>{rec}</li>)}
+            </ul>
+        </div>
+    </div>
+);
+
+const PasswordGeneratorResult = ({ result }: { result: GeneratePasswordOutput }) => {
+    const [isCopied, setIsCopied] = useState(false);
+    const { toast } = useToast();
+    
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(result.password);
+        setIsCopied(true);
+        toast({ title: "Password Copied!" });
+        setTimeout(() => setIsCopied(false), 2000);
+    }
+    return (
+        <div className="p-3 rounded-lg bg-muted/50 border space-y-3 text-sm my-2">
+            <h4 className="font-semibold flex items-center gap-2"><KeyRound className="text-primary"/> Secure Password Generated</h4>
+            <div className="flex items-center gap-2">
+                <Input readOnly value={result.password} className="font-mono text-xs bg-background"/>
+                 <Button variant="ghost" size="icon" onClick={copyToClipboard}>
+                    {isCopied ? <ClipboardCheck className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                </Button>
+            </div>
+             <div>
+                <p className="font-semibold text-xs mb-1">Strength Analysis</p>
+                <p className="text-muted-foreground">{result.strengthAnalysis}</p>
+            </div>
+        </div>
+    );
+}
+
+const FirewallRulesResult = ({ result }: { result: GenerateFirewallRulesOutput }) => (
+    <div className="p-3 rounded-lg bg-muted/50 border space-y-3 text-sm my-2">
+        <h4 className="font-semibold flex items-center gap-2"><Shield className="text-primary"/> Firewall Rules Generated</h4>
+         <p className="text-xs text-muted-foreground">Here are the firewall rules generated based on your request.</p>
+         <ScrollArea className="max-h-60 w-full">
+         <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead className="text-xs">Action</TableHead>
+                    <TableHead className="text-xs">Proto.</TableHead>
+                    <TableHead className="text-xs">Source</TableHead>
+                    <TableHead className="text-xs">Dest.</TableHead>
+                    <TableHead className="text-xs">Port</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {result.rules.map((rule, i) => (
+                    <TableRow key={i}>
+                        <TableCell><Badge variant={rule.action === 'DENY' ? 'destructive' : 'default'}>{rule.action}</Badge></TableCell>
+                        <TableCell>{rule.protocol}</TableCell>
+                        <TableCell className="truncate max-w-20">{rule.source}</TableCell>
+                        <TableCell className="truncate max-w-20">{rule.destination}</TableCell>
+                        <TableCell>{rule.port}</TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+        </ScrollArea>
+    </div>
+)
+
 
 export function AiChatAssistant() {
     const [isOpen, setIsOpen] = useState(false);
@@ -61,7 +172,7 @@ export function AiChatAssistant() {
         if(isOpen && messages.length === 0) {
             // Add initial welcome message
             setMessages([
-                { role: 'model', content: [{ text: 'Hello! I am the ShieldNet AI Assistant. How can I help you today? You can ask me about the app\'s features, global security news, or ask me to analyze a website URL for you.' }] }
+                { role: 'model', content: [{ text: 'Hello! I am the ShieldNet AI Assistant. I can help you analyze websites, check emails for phishing, generate secure passwords, create firewall rules, and more. How can I help you today?' }] }
             ]);
         }
     }, [isOpen, messages.length]);
@@ -148,17 +259,30 @@ export function AiChatAssistant() {
                                         </div>
                                     )}
                                     <div className={cn(
-                                        "rounded-lg max-w-[80%]",
+                                        "rounded-lg max-w-[90%]",
                                         message.role === 'user' 
                                             ? "bg-primary text-primary-foreground p-3" 
                                             : "bg-muted p-3"
                                     )}>
                                         {message.content.map((part, partIndex) => {
                                             if (part.text) {
-                                                return <div key={partIndex}>{part.text}</div>;
+                                                return <div key={partIndex} className="whitespace-pre-wrap">{part.text}</div>;
                                             }
-                                            if (part.toolResponse?.name === 'analyzeWebsite' && part.toolResponse.output) {
-                                                return <WebsiteAnalysisResult key={partIndex} result={part.toolResponse.output as AnalyzeWebsiteOutput} />;
+                                            if (part.toolResponse) {
+                                                switch(part.toolResponse.name) {
+                                                    case 'analyzeWebsite':
+                                                        return <WebsiteAnalysisResult key={partIndex} result={part.toolResponse.output as AnalyzeWebsiteOutput} />;
+                                                    case 'analyzeEmail':
+                                                        return <EmailAnalysisResult key={partIndex} result={part.toolResponse.output as AnalyzeEmailOutput} />;
+                                                     case 'darkWebScan':
+                                                        return <DarkWebScanResult key={partIndex} result={part.toolResponse.output as DarkWebScanOutput} />;
+                                                    case 'generatePassword':
+                                                        return <PasswordGeneratorResult key={partIndex} result={part.toolResponse.output as GeneratePasswordOutput} />;
+                                                    case 'generateFirewallRules':
+                                                        return <FirewallRulesResult key={partIndex} result={part.toolResponse.output as GenerateFirewallRulesOutput} />;
+                                                    default:
+                                                        return <p key={partIndex}>Tool response received.</p>;
+                                                }
                                             }
                                             return null;
                                         })}
@@ -191,7 +315,7 @@ export function AiChatAssistant() {
                     <DialogFooter className="p-4 border-t">
                         <form onSubmit={handleSubmit} className="w-full flex items-center gap-2">
                             <Input 
-                                placeholder="Ask about a feature or paste a URL..."
+                                placeholder="Ask me to generate a password, analyze a URL..."
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 disabled={isLoading}
