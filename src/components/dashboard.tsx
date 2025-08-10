@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -34,7 +35,7 @@ import {
 } from 'recharts';
 import { useSidebar } from '@/components/ui/sidebar';
 
-const trafficData = [
+const initialTrafficData = [
   { source: 'Internal', traffic: 4000 },
   { source: 'Web', traffic: 3000 },
   { source: 'Email', traffic: 2000 },
@@ -45,6 +46,28 @@ const trafficData = [
 
 export function Dashboard() {
   const { toggleSidebar } = useSidebar();
+  const [activeThreats, setActiveThreats] = useState(3);
+  const [networkTraffic, setNetworkTraffic] = useState(1.2);
+  const [protectedDevices, setProtectedDevices] = useState(57);
+  const [trafficData, setTrafficData] = useState(initialTrafficData);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveThreats(prev => Math.max(0, prev + Math.floor(Math.random() * 3) - 1));
+      setNetworkTraffic(prev => Math.max(0.5, prev + (Math.random() - 0.5) * 0.2));
+      setProtectedDevices(prev => prev + (Math.random() > 0.8 ? (Math.random() > 0.5 ? 1 : -1) : 0));
+      
+      setTrafficData(prevData => prevData.map(item => ({
+        ...item,
+        traffic: Math.max(500, item.traffic + Math.floor(Math.random() * 400) - 200)
+      })));
+
+    }, 3000); // Update every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+
   const trafficChartConfig = {
     traffic: {
       label: "Traffic",
@@ -86,7 +109,7 @@ export function Dashboard() {
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
+            <div className="text-2xl font-bold">{activeThreats}</div>
             <p className="text-xs text-muted-foreground">High severity alerts</p>
           </CardContent>
         </Card>
@@ -96,7 +119,7 @@ export function Dashboard() {
             <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1.2 TB</div>
+            <div className="text-2xl font-bold">{networkTraffic.toFixed(1)} TB</div>
             <p className="text-xs text-muted-foreground">Data processed today</p>
           </CardContent>
         </Card>
@@ -106,7 +129,7 @@ export function Dashboard() {
             <Server className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">57</div>
+            <div className="text-2xl font-bold">{protectedDevices}</div>
             <p className="text-xs text-muted-foreground">Endpoints secured</p>
           </CardContent>
         </Card>
