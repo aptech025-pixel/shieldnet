@@ -117,7 +117,7 @@ export async function darkWebScanAction(input: DarkWebScanInput): Promise<DarkWe
 
 
 const GetIpInfoInputSchema = z.object({
-  ip: z.string().ip(),
+  ip: z.string(),
 });
 
 export async function getIpInfo(input: z.infer<typeof GetIpInfoInputSchema>) {

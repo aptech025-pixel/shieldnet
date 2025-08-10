@@ -24,6 +24,7 @@ import {
   GenerateFirewallRulesInputSchema,
   GenerateFirewallRulesOutputSchema,
   ChatMessage,
+  ChatMessageSchema,
 } from '@/ai/schemas';
 import {analyzeWebsite} from './analyze-website';
 import {analyzeEmail} from './analyze-email';
@@ -149,12 +150,14 @@ When responding to users:
         const toolRequest = llmResponse.toolRequest;
         const toolResponse = await ai.runTool(toolRequest);
         
+        // Construct the new history including the model's request and the tool's response
         const history: ChatMessage[] = [
             ...messages,
             { role: 'model', content: llmResponse.content },
             { role: 'tool', content: [{ toolResponse: { name: toolRequest.name, output: toolResponse.output } }] },
         ];
         
+        // Call the model again with the updated history
         llmResponse = await prompt({ history });
       }
       
