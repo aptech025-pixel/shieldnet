@@ -6,8 +6,9 @@ import { generateItReport } from '@/ai/flows/generate-it-report';
 import { generateFirewallRules } from '@/ai/flows/generate-firewall-rules';
 import { analyzeWebsite } from '@/ai/flows/analyze-website';
 import { generatePassword } from '@/ai/flows/generate-password';
+import { getTopAttackOrigins } from '@/ai/flows/get-top-attack-origins';
 import { z } from 'zod';
-import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput } from '@/ai/schemas';
+import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput } from '@/ai/schemas';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
   networkLogs: z.string(),
@@ -81,5 +82,10 @@ const GeneratePasswordInputSchema = z.object({
 export async function generatePasswordAction(input: GeneratePasswordInput): Promise<GeneratePasswordOutput> {
     const parsedInput = GeneratePasswordInputSchema.parse(input);
     const result = await generatePassword(parsedInput);
+    return result;
+}
+
+export async function getTopAttackOriginsAction(): Promise<GetTopAttackOriginsOutput> {
+    const result = await getTopAttackOrigins();
     return result;
 }

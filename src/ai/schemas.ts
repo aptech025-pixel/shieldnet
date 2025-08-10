@@ -123,3 +123,14 @@ export const GeneratePasswordOutputSchema = z.object({
   strengthAnalysis: z.string().describe('A brief analysis of the password\'s strength.'),
 });
 export type GeneratePasswordOutput = z.infer<typeof GeneratePasswordOutputSchema>;
+
+// schemas for get-top-attack-origins.ts
+const AttackOriginSchema = z.object({
+  country: z.string().describe('The country code of the attack origin (e.g., "US", "RU").'),
+  attacks: z.number().describe('The number of attacks from this country.'),
+});
+
+export const GetTopAttackOriginsOutputSchema = z.object({
+  attacks: z.array(AttackOriginSchema).describe('A list of the top 10 attack origin countries.'),
+});
+export type GetTopAttackOriginsOutput = z.infer<typeof GetTopAttackOriginsOutputSchema>;

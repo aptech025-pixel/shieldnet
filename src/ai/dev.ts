@@ -7,3 +7,4 @@ import '@/ai/flows/generate-it-report.ts';
 import '@/ai/flows/generate-firewall-rules.ts';
 import '@/ai/flows/analyze-website.ts';
 import '@/ai/flows/generate-password.ts';
+import '@/ai/flows/get-top-attack-origins.ts';

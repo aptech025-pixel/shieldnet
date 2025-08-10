@@ -1,6 +1,6 @@
 
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -28,6 +28,8 @@ import {
 } from 'recharts';
 import { Calendar as CalendarIcon, Menu } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
+import { getTopAttackOriginsAction } from '@/app/actions';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const threatTrendsData = [
   { date: '2023-10-01', High: 4, Medium: 10, Low: 22 },
@@ -47,28 +49,51 @@ const trafficProtocolData = [
   { name: 'DNS', value: 2000, fill: 'hsl(var(--chart-5))' },
 ];
 
-const attackOriginData = [
-    { country: 'Russia', attacks: 125, fill: 'hsl(var(--chart-1))' },
-    { country: 'China', attacks: 98, fill: 'hsl(var(--chart-2))' },
-    { country: 'USA', attacks: 72, fill: 'hsl(var(--chart-3))' },
-    { country: 'Brazil', attacks: 45, fill: 'hsl(var(--chart-4))' },
-    { country: 'Nigeria', attacks: 31, fill: 'hsl(var(--chart-5))' },
-    { country: 'Germany', attacks: 25, fill: 'hsl(var(--chart-1))' },
-    { country: 'India', attacks: 19, fill: 'hsl(var(--chart-2))' },
-    { country: 'Iran', attacks: 15, fill: 'hsl(var(--chart-3))' },
-    { country: 'UK', attacks: 12, fill: 'hsl(var(--chart-4))' },
-    { country: 'Vietnam', attacks: 9, fill: 'hsl(var(--chart-5))' },
-];
-
-
 const areaChartConfig = {
   High: { label: 'High', color: 'hsl(var(--destructive))' },
   Medium: { label: 'Medium', color: 'hsl(var(--primary))' },
   Low: { label: 'Low', color: 'hsl(var(--secondary))' },
 };
 
+const countryCodeToName: Record<string, string> = {
+    US: "United States",
+    RU: "Russia",
+    CN: "China",
+    BR: "Brazil",
+    NG: "Nigeria",
+    DE: "Germany",
+    IN: "India",
+    IR: "Iran",
+    GB: "United Kingdom",
+    VN: "Vietnam",
+    // Add more mappings as needed
+};
+
 export default function AnalyticsPage() {
   const { toggleSidebar } = useSidebar();
+  const [attackOriginData, setAttackOriginData] = useState<any[]>([]);
+  const [loadingOrigins, setLoadingOrigins] = useState(true);
+
+  useEffect(() => {
+    async function fetchAttackOrigins() {
+        try {
+            setLoadingOrigins(true);
+            const result = await getTopAttackOriginsAction();
+            const formattedData = result.attacks.map((item, index) => ({
+                country: countryCodeToName[item.country] || item.country,
+                attacks: item.attacks,
+                fill: `hsl(var(--chart-${(index % 5) + 1}))`
+            }));
+            setAttackOriginData(formattedData);
+        } catch (error) {
+            console.error("Failed to fetch attack origins:", error);
+        } finally {
+            setLoadingOrigins(false);
+        }
+    }
+    fetchAttackOrigins();
+  }, []);
+
   return (
     <main className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-background">
       <div className="flex items-center justify-between space-y-2 flex-wrap">
@@ -137,6 +162,16 @@ export default function AnalyticsPage() {
              <CardDescription>Top 10 countries by number of attacks this month.</CardDescription>
            </CardHeader>
            <CardContent className="pl-2">
+            {loadingOrigins ? (
+                <div className="h-[400px] w-full space-y-4 p-4">
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-8 w-4/5" />
+                    <Skeleton className="h-8 w-3/5" />
+                    <Skeleton className="h-8 w-4/6" />
+                </div>
+            ) : (
              <ChartContainer config={{}} className="h-[400px] w-full">
                <RechartsBarChart
                  data={attackOriginData}
@@ -144,7 +179,7 @@ export default function AnalyticsPage() {
                  margin={{ left: 10, right: 30 }}
                >
                  <CartesianGrid horizontal={false} />
-                 <YAxis dataKey="country" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80} />
+                 <YAxis dataKey="country" type="category" tickLine={false} axisLine={false} tickMargin={10} width={100} />
                  <XAxis type="number" hide />
                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                  <Bar dataKey="attacks" radius={5} barSize={20}>
@@ -154,6 +189,7 @@ export default function AnalyticsPage() {
                  </Bar>
                </RechartsBarChart>
              </ChartContainer>
+            )}
            </CardContent>
          </Card>
     </main>
