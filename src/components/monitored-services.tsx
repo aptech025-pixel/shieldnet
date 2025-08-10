@@ -152,7 +152,7 @@ export function MonitoredServicesManager() {
         </Form>
         
         <div className="mt-6 space-y-3">
-             <h4 className="text-sm font-medium text-muted-foreground">Currently Monitoring</h4>
+             <h4 className="text-sm font-medium text-muted-foreground">Monitored Websites</h4>
              {loading && (
                 <div className="flex items-center justify-center py-4">
                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

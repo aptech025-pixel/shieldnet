@@ -10,6 +10,9 @@ import { ServicesProvider } from '@/hooks/use-services';
 export const metadata: Metadata = {
   title: 'ShieldNet',
   description: 'A complete network security system for a small business.',
+  icons: {
+    icon: '/favicon.ico',
+  }
 };
 
 export default function RootLayout({

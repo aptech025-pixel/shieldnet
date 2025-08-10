@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -28,8 +29,8 @@ export default function LoginPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "agent@shieldnet.io",
-      password: "Myheartis4God₦",
+      email: "",
+      password: "",
     },
   });
 
