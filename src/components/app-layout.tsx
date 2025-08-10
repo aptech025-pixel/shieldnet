@@ -27,6 +27,7 @@ import { signOut } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AiChatAssistant } from './ai-chat-assistant';
+import { useEffect, useRef } from 'react';
 
 export function AppLayout({
   children,
@@ -36,6 +37,13 @@ export function AppLayout({
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Play sound only once when the component mounts
+    audioRef.current = new Audio('/sounds/app-start.mp3');
+    audioRef.current.play().catch(error => console.error("Error playing startup sound:", error));
+  }, []);
 
   const handleSignOut = async () => {
     try {

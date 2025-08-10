@@ -167,6 +167,20 @@ export function AiChatAssistant() {
     const [input, setInput] = useState('');
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const { toast } = useToast();
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    useEffect(() => {
+        // Pre-load audio
+        audioRef.current = new Audio('/sounds/chat-pop.mp3');
+    }, []);
+
+    const playSound = () => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch(error => console.error("Error playing sound:", error));
+        }
+    };
+
 
     useEffect(() => {
         if(isOpen && messages.length === 0) {
@@ -178,6 +192,10 @@ export function AiChatAssistant() {
     }, [isOpen, messages.length]);
 
     useEffect(() => {
+        if (messages.length > 0) {
+            playSound();
+        }
+
         // Scroll to the bottom when new messages are added
         if (scrollAreaRef.current) {
             scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
