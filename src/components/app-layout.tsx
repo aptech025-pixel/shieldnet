@@ -1,4 +1,3 @@
-
 "use client"
 import {
   Sidebar,
@@ -20,6 +19,7 @@ import {
   LogOut,
   LifeBuoy,
   Wrench,
+  Rss,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase';
@@ -70,6 +70,14 @@ export function AppLayout({
                 <SidebarMenuButton isActive={pathname === '/'} tooltip={{content: "Dashboard"}}>
                   <LayoutDashboard />
                   <span>Dashboard</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <Link href="/intel" passHref>
+                <SidebarMenuButton isActive={pathname === '/intel'} tooltip={{content: "Threat Intel"}}>
+                  <Rss />
+                  <span>Threat Intel</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>

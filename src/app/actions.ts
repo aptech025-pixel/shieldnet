@@ -10,10 +10,11 @@ import { getTopAttackOrigins } from '@/ai/flows/get-top-attack-origins';
 import { analyzeEmail } from '@/ai/flows/analyze-email';
 import { darkWebScan } from '@/ai/flows/dark-web-scanner';
 import { chatAssistant } from '@/ai/flows/chat-assistant';
+import { summarizeSecurityArticle } from '@/ai/flows/summarize-security-article';
 import { getIpInfo as getIpInfoTool } from '@/ai/tools/get-ip-info';
 import { z } from 'zod';
-import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput, AnalyzeEmailInput, AnalyzeEmailOutput, DarkWebScanInput, DarkWebScanOutput, ChatAssistantInput, ChatAssistantOutput } from '@/ai/schemas';
-import { ChatAssistantInputSchema, ChatMessageSchema } from '@/ai/schemas';
+import type { AnalyzeNetworkLogsInput, ExplainThreatInput, ExplainThreatOutput, GenerateItReportInput, GenerateItReportOutput, GenerateFirewallRulesInput, GenerateFirewallRulesOutput, AnalyzeWebsiteInput, AnalyzeWebsiteOutput, GeneratePasswordInput, GeneratePasswordOutput, GetTopAttackOriginsOutput, AnalyzeEmailInput, AnalyzeEmailOutput, DarkWebScanInput, DarkWebScanOutput, ChatAssistantInput, ChatAssistantOutput, SummarizeSecurityArticleInput, SummarizeSecurityArticleOutput } from '@/ai/schemas';
+import { ChatAssistantInputSchema, ChatMessageSchema, SummarizeSecurityArticleInputSchema } from '@/ai/schemas';
 
 const AnalyzeNetworkLogsInputSchema = z.object({
   networkLogs: z.string(),
@@ -131,5 +132,12 @@ export async function getIpInfo(input: z.infer<typeof GetIpInfoInputSchema>) {
 export async function chatAssistantAction(input: ChatAssistantInput): Promise<ChatAssistantOutput> {
     const parsedInput = ChatAssistantInputSchema.parse(input);
     const result = await chatAssistant(parsedInput);
+    return result;
+}
+
+
+export async function summarizeSecurityArticleAction(input: SummarizeSecurityArticleInput): Promise<SummarizeSecurityArticleOutput> {
+    const parsedInput = SummarizeSecurityArticleInputSchema.parse(input);
+    const result = await summarizeSecurityArticle(parsedInput);
     return result;
 }

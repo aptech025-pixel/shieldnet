@@ -199,3 +199,19 @@ export const ChatAssistantOutputSchema = z.object({
     message: ChatMessageSchema,
 });
 export type ChatAssistantOutput = z.infer<typeof ChatAssistantOutputSchema>;
+
+// schemas for summarize-security-article.ts
+export const SummarizeSecurityArticleInputSchema = z.object({
+  articleContent: z.string().min(100).describe('The full text content of the cybersecurity news article.'),
+  articleUrl: z.string().url().describe('The original URL of the article for reference.')
+});
+export type SummarizeSecurityArticleInput = z.infer<typeof SummarizeSecurityArticleInputSchema>;
+
+export const SummarizeSecurityArticleOutputSchema = z.object({
+  title: z.string().describe('A concise, compelling title for the article summary.'),
+  summary: z.string().describe('A brief, easy-to-understand summary of the article, focusing on the key threat.'),
+  severity: z.enum(['Low', 'Medium', 'High', 'Critical']).describe('The assessed severity of the threat discussed in the article.'),
+  category: z.enum(['Vulnerability', 'Data Breach', 'Phishing', 'Malware', 'Ransomware', 'Cyberattack', 'Policy', 'Other']).describe('The primary category of the security threat.'),
+  recommendations: z.array(z.string()).describe('A list of specific, actionable steps a user or small business can take to mitigate this threat.')
+});
+export type SummarizeSecurityArticleOutput = z.infer<typeof SummarizeSecurityArticleOutputSchema>;
