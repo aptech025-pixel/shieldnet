@@ -176,12 +176,12 @@ const ToolRequestSchema = z.object({
 
 const ToolResponseSchema = z.object({
   name: z.string(),
-  output: AnalyzeWebsiteOutputSchema,
+  output: z.any(),
 });
 
 
 export const ChatMessageSchema = z.object({
-    role: z.enum(['user', 'model']),
+    role: z.enum(['user', 'model', 'tool']),
     content: z.array(z.object({
       text: z.string().optional(),
       toolRequest: ToolRequestSchema.optional(),

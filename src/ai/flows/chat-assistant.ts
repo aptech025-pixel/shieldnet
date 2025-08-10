@@ -15,6 +15,7 @@ import {
   ChatAssistantOutput,
   ChatAssistantOutputSchema,
   AnalyzeWebsiteOutputSchema,
+  ChatMessageSchema,
 } from '@/ai/schemas';
 import {analyzeWebsite} from './analyze-website';
 
@@ -57,7 +58,7 @@ export async function chatAssistant(
       inputSchema: ChatAssistantInputSchema,
       outputSchema: ChatAssistantOutputSchema,
     },
-    async input => {
+    async ({messages}) => {
       const prompt = ai.definePrompt({
         name: 'chatAssistantPrompt',
         tools: [websiteAnalyzerTool],
@@ -77,37 +78,28 @@ When responding to users:
 `,
       });
 
-      const llmResponse = await prompt.run({input});
+      const llmResponse = await prompt.run({input: messages});
+      
+      const hasToolRequest = llmResponse.toolRequests.length > 0;
 
-      // If the model decides to use a tool, run it and return the output.
-      if (llmResponse.toolRequests.length > 0) {
-        const toolResponse = await ai.runTools({
-            requests: llmResponse.toolRequests,
-        });
-
-        // Add the tool responses to the context and run the prompt again
-        // to get a conversational summary from the LLM.
-        const finalLlmResponse = await prompt.run({
-            input,
-            context: [llmResponse.context, ...toolResponse.map(r => r.context)],
-        });
-
-        // We return the original tool response context plus the final LLM summary
-        return {
-            message: {
-                ...finalLlmResponse.context,
-                content: [
-                    ...toolResponse.map(r => r.context.content).flat(),
-                    ...finalLlmResponse.context.content
-                ]
-            }
-        };
+      if (!hasToolRequest) {
+        return { message: llmResponse.context };
       }
+      
+      const toolResponse = await ai.runTools({
+          requests: llmResponse.toolRequests,
+      });
 
-      // If no tool is used, just return the direct LLM response.
-      return {
-        message: llmResponse.context,
-      };
+      const finalLlmResponse = await prompt.run({
+          input: [
+            ...messages,
+            llmResponse.context,
+            ...toolResponse.map(r => r.context)
+          ],
+      });
+      
+      return { message: finalLlmResponse.context };
+
     }
   );
 

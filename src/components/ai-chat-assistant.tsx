@@ -151,14 +151,11 @@ export function AiChatAssistant() {
                                         "rounded-lg max-w-[80%]",
                                         message.role === 'user' 
                                             ? "bg-primary text-primary-foreground p-3" 
-                                            : "bg-muted"
+                                            : "bg-muted p-3"
                                     )}>
                                         {message.content.map((part, partIndex) => {
                                             if (part.text) {
-                                                // If there's a tool response, the text from the LLM will just be a conversational wrapper, so we add padding.
-                                                // If it's just a text response, it gets the normal padding.
-                                                const hasToolResponse = message.content.some(p => p.toolResponse);
-                                                return <div key={partIndex} className={cn(hasToolResponse ? 'pb-2' : 'p-3')}>{part.text}</div>;
+                                                return <div key={partIndex}>{part.text}</div>;
                                             }
                                             if (part.toolResponse?.name === 'analyzeWebsite' && part.toolResponse.output) {
                                                 return <WebsiteAnalysisResult key={partIndex} result={part.toolResponse.output as AnalyzeWebsiteOutput} />;
