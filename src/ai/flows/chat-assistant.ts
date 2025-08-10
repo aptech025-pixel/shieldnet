@@ -24,15 +24,12 @@ import {
   GenerateFirewallRulesInputSchema,
   GenerateFirewallRulesOutputSchema,
   ChatMessage,
-  ChatMessageSchema,
 } from '@/ai/schemas';
 import {analyzeWebsite} from './analyze-website';
 import {analyzeEmail} from './analyze-email';
 import {darkWebScan} from './dark-web-scanner';
 import {generatePassword} from './generate-password';
 import {generateFirewallRules} from './generate-firewall-rules';
-
-import {content, Part} from 'genkit';
 
 const appDescription = `
 ShieldNet is an AI-powered cybersecurity suite for proactive network defense and IT management.
@@ -144,24 +141,27 @@ When responding to users:
 `,
       });
 
-      let llmResponse = await prompt({ history: messages });
+      let currentMessages = [...messages];
+      while (true) {
+        const llmResponse = await prompt({history: currentMessages});
 
-      while (llmResponse.toolRequest) {
-        const toolRequest = llmResponse.toolRequest;
-        const toolResponse = await ai.runTool(toolRequest);
+        if (llmResponse.toolRequest) {
+            const toolRequest = llmResponse.toolRequest;
+            const toolResponse = await ai.runTool(toolRequest);
+            
+            // Add the model's tool request and the tool's response to the history
+            currentMessages = [
+                ...currentMessages,
+                { role: 'model', content: llmResponse.content },
+                { role: 'tool', content: [{ toolResponse: { name: toolRequest.name, output: toolResponse.output } }] },
+            ];
+            // Continue the loop to get the next model response
+            continue;
+        }
         
-        // Construct the new history including the model's request and the tool's response
-        const history: ChatMessage[] = [
-            ...messages,
-            { role: 'model', content: llmResponse.content },
-            { role: 'tool', content: [{ toolResponse: { name: toolRequest.name, output: toolResponse.output } }] },
-        ];
-        
-        // Call the model again with the updated history
-        llmResponse = await prompt({ history });
+        // If there's no tool request, it's the final answer.
+        return { message: llmResponse.context };
       }
-      
-      return { message: llmResponse.context };
     }
   );
 
