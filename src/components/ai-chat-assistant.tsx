@@ -26,8 +26,18 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/
 
 
 const RiskBadge = ({ risk }: { risk: string }) => {
-    // ... same as in email-analyzer
-    return <Badge>{risk}</Badge>;
+    switch (risk) {
+        case 'Critical':
+            return <Badge variant="destructive" className="capitalize"><MailWarning className="inline-block mr-1 h-3 w-3" /> {risk}</Badge>;
+        case 'High':
+            return <Badge className="bg-orange-500 text-white hover:bg-orange-500/80 capitalize"><ShieldAlert className="inline-block mr-1 h-3 w-3" /> {risk}</Badge>;
+        case 'Medium':
+            return <Badge className="bg-yellow-500 text-black hover:bg-yellow-500/80 capitalize"><Shield className="inline-block mr-1 h-3 w-3" /> {risk}</Badge>;
+        case 'Low':
+            return <Badge variant="secondary" className="capitalize"><ListChecks className="inline-block mr-1 h-3 w-3" /> {risk}</Badge>;
+        default:
+            return <Badge>{risk}</Badge>;
+    }
 }
 
 const WebsiteAnalysisResult = ({ result }: { result: AnalyzeWebsiteOutput }) => (

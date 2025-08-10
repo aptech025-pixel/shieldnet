@@ -143,28 +143,27 @@ When responding to users:
 `,
       });
 
-      let currentMessages = [...messages];
+      let history = [...messages];
       
       while (true) {
-        const llmResponse = await prompt({history: currentMessages});
+        const llmResponse = await prompt({history});
 
         if (llmResponse.toolRequest) {
           const toolRequest = llmResponse.toolRequest;
           const toolResponse = await ai.runTool(toolRequest);
           
-          currentMessages = [
-              ...currentMessages,
-              { role: 'model', content: [{ toolRequest }] },
-              { role: 'tool', content: [{ toolResponse }] },
-          ];
+          history.push(
+            { role: 'model', content: [{ toolRequest }] },
+            { role: 'tool', content: [{ toolResponse }] },
+          );
 
           continue;
         }
         
         const finalMessage = {
-          role: 'model',
+          role: 'model' as const,
           content: llmResponse.content,
-        } as const;
+        };
 
         const validatedMessage = ChatMessageSchema.parse(finalMessage);
 
